@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GreaseMilkyway2</string>
+    <string name="accessibility_service_description">Help ADHD</string>
+    <string name="enable_accessibility_service">Enable Accessibility Service</string>
+</resources>
