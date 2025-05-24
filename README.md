@@ -16,13 +16,11 @@ This app is specifically designed as an accessibility tool to help people who:
 
 GreaseMilkyway is designed to make digital spaces more accessible and manageable for people with attention-related conditions.
 
-## Features
+## Installation
 
-- Block distracting content in any Android app
-- Customisable rules using a simple filter syntax
-- Real-time content blocking using accessibility service
-- Visual feedback for blocked elements
-- Easy rule management through a user-friendly interface
+1. Download the latest release from [GitHub Releases](https://github.com/kasnder/GreaseMilkyway/releases/latest)
+2. Enable the service from within the app.
+3. Use some of your apps, and potentially create new rules (see below).
 
 ## How It Works
 
@@ -56,13 +54,6 @@ com.whatsapp##viewId=com.whatsapp:id/fab_second##colour=FFFFFF##comment=Hide AI 
 # Block Instagram Stories
 com.instagram.android##desc=reels tray container##colour=FFFFFF##comment=Hide Stories
 ```
-
-## Installation
-
-1. Download the latest release from [GitHub Releases](https://github.com/kasnder/GreaseMilkyway/releases/latest)
-2. Enable the accessibility service in Settings > Accessibility > GreaseMilkyway
-3. Grant the necessary permissions
-4. Start creating your blocking rules!
 
 ## Privacy
 
