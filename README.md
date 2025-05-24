@@ -78,7 +78,7 @@ Contributions are welcome! Feel free to submit issues and pull requests.
 
 ### Default Rules
 
-The app comes with a set of default rules to help users get started. These rules are stored in [`app/src/main/assets/distraction_rules.txt`](https://github.com/konradkollnig/GreaseMilkyway2/blob/main/app/src/main/assets/distraction_rules.txt). We welcome contributions to improve these rules! If you've found a way to block distracting content in an app, please consider:
+The app comes with a set of default rules to help users get started. These rules are stored in [`app/src/main/assets/distraction_rules.txt`](app/src/main/assets/distraction_rules.txt). We welcome contributions to improve these rules! If you've found a way to block distracting content in an app, please consider:
 
 1. Testing your rule thoroughly
 2. Adding a clear comment explaining what the rule blocks
