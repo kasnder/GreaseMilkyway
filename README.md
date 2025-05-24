@@ -55,6 +55,25 @@ com.whatsapp##viewId=com.whatsapp:id/fab_second##colour=FFFFFF##comment=Hide AI 
 com.instagram.android##desc=reels tray container##colour=FFFFFF##comment=Hide Stories
 ```
 
+## Creating Your Own Rules
+
+To create effective rules, you'll need to identify the elements you want to block.  Several apps on the Play Store can help you inspect layouts directly on your device, e.g. **Developer Assistant** ([Play Store Link](https://play.google.com/store/apps/details?id=com.appsisle.developerassistant)).
+
+### Tips for Creating Rules
+
+1. **View IDs**: Look for unique identifiers in the layout hierarchy. They usually follow the pattern `package.name:id/identifier`
+2. **Content Descriptions**: Elements often have content descriptions that can be used for matching
+3. **Testing**: After creating a rule:
+   - Test it thoroughly
+   - Make sure it doesn't block unintended elements
+   - Verify it works across different app versions
+
+### Common Patterns
+
+- For social media feeds: Look for recycler views or list views
+- For buttons: Check for FAB (Floating Action Button) IDs or specific button identifiers
+- For ads: Often have "ad" or "sponsored" in their IDs or descriptions
+
 ## Privacy
 
 GreaseMilkyway:
