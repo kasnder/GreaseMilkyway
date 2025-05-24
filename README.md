@@ -59,7 +59,7 @@ com.instagram.android##desc=reels tray container##colour=FFFFFF##comment=Hide St
 
 ## Installation
 
-1. Download the app from the Google Play Store (coming soon)
+1. Download the latest release from [GitHub Releases](https://github.com/kasnder/GreaseMilkyway/releases/latest)
 2. Enable the accessibility service in Settings > Accessibility > GreaseMilkyway
 3. Grant the necessary permissions
 4. Start creating your blocking rules!
