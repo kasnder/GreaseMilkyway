@@ -1,9 +1,11 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <!-- Base application theme. -->
-    <style name="Base.Theme.GreaseMilkyway2" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.GreaseMilkyway" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
     </style>
 
-    <style name="Theme.GreaseMilkyway2" parent="Base.Theme.GreaseMilkyway2" />
+    <style name="Theme.GreaseMilkyway" parent="Base.Theme.GreaseMilkyway" />
 </resources>

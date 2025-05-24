@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GreaseMilkyway2"
+rootProject.name = "GreaseMilkyway"
 include ':app'

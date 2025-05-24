@@ -1,5 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GreaseMilkyway2</string>
+    <string name="app_name">GreaseMilkyway</string>
     <string name="accessibility_service_description">Help ADHD</string>
     <string name="enable_accessibility_service">Enable Accessibility Service</string>
+    <string name="settings_title">GreaseMilkyway</string>
+    <string name="service_settings">Service Settings</string>
+    <string name="enable_service">Enable Service</string>
+    <string name="rules_settings">Rules</string>
+    <string name="enable_service_first">Please enable the accessibility service first</string>
+    <string name="custom_rules_title">Custom Rules (Expert Mode)</string>
+    <string name="custom_rules_hint">⚠️ Expert Mode ⚠️\n\nThis feature is for advanced users who understand Android view IDs and content descriptions.\n\nEnter your custom rules here, one per line.\n\nExample:\ncom.example.app##viewId=com.example.app:id/distracting_element##desc=Distracting content##color=FFFFFF</string>
+    <string name="save_rules">Save Rules</string>
+    <string name="rules_saved">Rules saved successfully</string>
+    <string name="invalid_rules">Invalid rules format. Please check your rules and try again.</string>
+    <string name="add_custom_rules">Add Custom Rules</string>
 </resources>
