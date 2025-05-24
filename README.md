@@ -76,6 +76,16 @@ GreaseMilkyway:
 
 Contributions are welcome! Feel free to submit issues and pull requests.
 
+### Default Rules
+
+The app comes with a set of default rules to help users get started. These rules are stored in [`app/src/main/assets/distraction_rules.txt`](https://github.com/konradkollnig/GreaseMilkyway2/blob/main/app/src/main/assets/distraction_rules.txt). We welcome contributions to improve these rules! If you've found a way to block distracting content in an app, please consider:
+
+1. Testing your rule thoroughly
+2. Adding a clear comment explaining what the rule blocks
+3. Submitting a pull request with your addition
+
+Each rule should follow the format described in the [Rule Format](#rule-format) section above.
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details. 

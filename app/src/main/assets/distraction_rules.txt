@@ -1,0 +1,10 @@
+com.google.android.youtube##viewId=com.google.android.youtube:id/watch_list##desc=Shorts|Go to channel##color=FFFFFF##comment=Hide next-up video recommendations
+com.whatsapp##viewId=com.whatsapp:id/fab_second##desc=##color=FFFFFF##comment=Hide AI button
+com.whatsapp##viewId=com.whatsapp:id/empty_search_carousal##desc=##color=FFFFFF##comment=Hide AI suggestions in search
+com.instagram.android##viewId=com.instagram.android:id/layout_container##desc=##color=FFFFFF##comment=Hide search suggestions 1/2
+com.instagram.android##viewId=com.instagram.android:id/grid_card_layout_container##desc=##color=FFFFFF##comment=Hide search suggestions 2/2
+com.instagram.android##desc=reels tray container##color=FFFFFF##comment=Hide Stories
+com.instagram.android##viewId=android:id/list##desc=##color=FFFFFF##comment=Hide Feed
+com.instagram.android##viewId=com.instagram.android:id/clips_tab##desc=##color=FFFFFF##comment=Hide Reels button
+com.google.android.youtube##desc=Shorts##color=FFFFFF##comment=Hide Shorts button
+com.instagram.android##viewId=com.instagram.android:id/root_clips_layout##desc=##color=FFFFFF##comment=Hide Reels layout 
