@@ -1,10 +1,11 @@
 # GreaseMilkyway
 
-<div align="center">
-<img src="app/src/main/ic_launcher-playstore.png" width="128" height="128" alt="App Icon">
-</div>
+<a href='https://github.com/kasnder/GreaseMilkyway/releases/latest'><img height=70 alt='Get it on Github' src='https://raw.githubusercontent.com/TrackerControl/tracker-control-android/master/images/get-it-on-github.png'/></a>
+<a href='https://play.google.com/store/apps/details?id=net.kollnig.greasemikyway'><img height=70 alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
 
 GreaseMilkyway is an Android accessibility service designed to help people with attention-related conditions (such as ADHD) manage their digital environment. By allowing users to block distracting content in apps, it helps create a more focused and less overwhelming digital experience.
+
+It is a successor to the [GreaseWorld initiative](https://greaseuniverse.github.io) that previously developed a range of tooling to respond to potentially harmful patterns in mobile apps.
 
 ## Purpose
 
@@ -16,17 +17,7 @@ This app is specifically designed as an accessibility tool to help people who:
 
 GreaseMilkyway is designed to make digital spaces more accessible and manageable for people with attention-related conditions.
 
-## Installation
-
-1. Download the latest release from [GitHub Releases](https://github.com/kasnder/GreaseMilkyway/releases/latest)
-2. Enable the service from within the app.
-3. Use some of your apps, and potentially create new rules (see below).
-
-## How It Works
-
-GreaseMilkyway uses Android's Accessibility Service to analyse the content of apps and apply blocking rules in real-time. When a matching element is found, it's covered with an overlay that prevents interaction while maintaining the app's layout.
-
-## Rule Format
+## Adding new Rules
 
 Rules follow a simple syntax with key-value pairs separated by `##`:
 
