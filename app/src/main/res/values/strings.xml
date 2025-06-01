@@ -14,4 +14,5 @@
     <string name="rules_saved">Rules saved successfully</string>
     <string name="invalid_rules">Invalid rules format. Please check your rules and try again.</string>
     <string name="add_custom_rules">Add Custom Rules</string>
+    <string name="disable_all_rules_for_app">Disable all rules for this app</string>
 </resources>

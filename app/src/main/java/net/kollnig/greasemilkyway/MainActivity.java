@@ -67,16 +67,11 @@ public class MainActivity extends AppCompatActivity {
             String settingValue = Settings.Secure.getString(
                     getContentResolver(),
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            if (settingValue != null) {
-                boolean isEnabled = settingValue.contains(serviceName);
-                config.setEnabled(isEnabled);
+            if (settingValue != null && settingValue.contains(serviceName)) {
+                // Reload rules to reflect any changes from CustomRulesActivity
+                loadSettings();
             }
-        } else {
-            config.setEnabled(false);
         }
-
-        // Reload rules to reflect any changes from CustomRulesActivity
-        loadSettings();
 
         // Notify the adapter to update the service header
         adapter.notifyItemChanged(0);  // Service header is always at position 0

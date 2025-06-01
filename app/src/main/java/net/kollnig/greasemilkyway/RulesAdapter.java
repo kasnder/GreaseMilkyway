@@ -64,6 +64,15 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void setRules(List<FilterRule> rules) {
+        // Create a map of existing rules by their hash code for state preservation
+        Map<Integer, Boolean> existingStates = new HashMap<>();
+        for (Object item : items) {
+            if (item instanceof RuleItem) {
+                FilterRule rule = ((RuleItem) item).rule;
+                existingStates.put(rule.hashCode(), rule.enabled);
+            }
+        }
+
         this.items.clear();
 
         // Add service header
@@ -72,6 +81,11 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         // Group rules by package name
         Map<String, List<FilterRule>> rulesByPackage = new HashMap<>();
         for (FilterRule rule : rules) {
+            // Preserve the enabled state from existing rules
+            Boolean existingState = existingStates.get(rule.hashCode());
+            if (existingState != null) {
+                rule.enabled = existingState;
+            }
             rulesByPackage.computeIfAbsent(rule.packageName, k -> new ArrayList<>()).add(rule);
         }
 
@@ -149,22 +163,60 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             });
         } else if (holder instanceof AppHeaderViewHolder && item instanceof AppHeaderItem) {
             AppHeaderViewHolder viewHolder = (AppHeaderViewHolder) holder;
-            AppHeaderItem headerItem = (AppHeaderItem) item;
+            AppHeaderItem appItem = (AppHeaderItem) item;
+            String packageName = appItem.packageName;
 
             try {
-                ApplicationInfo appInfo = packageManager.getApplicationInfo(headerItem.packageName, 0);
+                ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
                 viewHolder.appName.setText(packageManager.getApplicationLabel(appInfo));
-                viewHolder.packageName.setText(headerItem.packageName);
                 viewHolder.appIcon.setImageDrawable(packageManager.getApplicationIcon(appInfo));
             } catch (PackageManager.NameNotFoundException e) {
-                viewHolder.appName.setText(headerItem.packageName);
-                viewHolder.packageName.setText("");
+                viewHolder.appName.setText(packageName);
                 viewHolder.appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
+            viewHolder.packageName.setText(packageName);
+
+            // Set up package switch
+            viewHolder.packageSwitch.setOnCheckedChangeListener(null); // Remove any existing listener
+            viewHolder.packageSwitch.setChecked(!config.isPackageDisabled(packageName)); // Invert the disabled state for the switch
+            viewHolder.packageSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                config.setPackageDisabled(packageName, !isChecked); // Invert the switch state for disabled state
+                
+                // When disabling a package, we don't change individual rule states
+                // When enabling a package, we restore the individual rule states
+                if (isChecked) {
+                    // Update all rules for this package to their saved states
+                    for (int i = position + 1; i < items.size(); i++) {
+                        Object nextItem = items.get(i);
+                        if (nextItem instanceof RuleItem) {
+                            RuleItem ruleItem = (RuleItem) nextItem;
+                            if (ruleItem.rule.packageName.equals(packageName)) {
+                                // Get the saved state from SharedPreferences
+                                String key = ServiceConfig.KEY_RULE_ENABLED + ruleItem.rule.hashCode();
+                                boolean savedState = config.getPrefs().getBoolean(key, true);
+                                ruleItem.rule.enabled = savedState;
+                            }
+                        } else if (nextItem instanceof AppHeaderItem) {
+                            // Stop when we reach the next app header
+                            break;
+                        }
+                    }
+                }
+                notifyDataSetChanged();
+
+                // Notify the service to update its rules
+                DistractionControlService service = DistractionControlService.getInstance();
+                if (service != null) {
+                    service.updateRules();
+                }
+            });
         } else if (holder instanceof RuleViewHolder && item instanceof RuleItem) {
             RuleViewHolder viewHolder = (RuleViewHolder) holder;
             RuleItem ruleItem = (RuleItem) item;
             FilterRule rule = ruleItem.rule;
+
+            // Store the position in the ViewHolder
+            viewHolder.position = position;
 
             viewHolder.ruleDescription.setText(rule.description);
 
@@ -181,20 +233,33 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
             viewHolder.ruleDetails.setText(details.toString());
 
+            // Check if the package is disabled
+            boolean isPackageDisabled = config.isPackageDisabled(rule.packageName);
+            
+            // Remove any existing listener to prevent duplicate callbacks
+            viewHolder.ruleSwitch.setOnCheckedChangeListener(null);
+            // Set the current state
             viewHolder.ruleSwitch.setChecked(rule.enabled);
-
+            // Disable the switch if the package is disabled
+            viewHolder.ruleSwitch.setEnabled(!isPackageDisabled);
+            // Add the listener back
             viewHolder.ruleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                rule.enabled = isChecked;
-                config.setRuleEnabled(rule.packageName, rule.targetViewId, isChecked);
+                // Verify we're still bound to the same position
+                if (viewHolder.position == position) {
+                    if (rule.enabled != isChecked) {  // Only update if the state actually changed
+                        rule.enabled = isChecked;
+                        config.setRuleEnabled(rule, isChecked);
 
-                // Notify the service to update its rules
-                DistractionControlService service = DistractionControlService.getInstance();
-                if (service != null) {
-                    service.updateRules();
-                }
+                        // Notify the service to update its rules
+                        DistractionControlService service = DistractionControlService.getInstance();
+                        if (service != null) {
+                            service.updateRules();
+                        }
 
-                if (onRuleStateChangedListener != null) {
-                    onRuleStateChangedListener.onRuleStateChanged(rule);
+                        if (onRuleStateChangedListener != null) {
+                            onRuleStateChangedListener.onRuleStateChanged(rule);
+                        }
+                    }
                 }
             });
         }
@@ -252,12 +317,14 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         TextView appName;
         TextView packageName;
         ImageView appIcon;
+        Switch packageSwitch;
 
         AppHeaderViewHolder(View itemView) {
             super(itemView);
             appName = itemView.findViewById(R.id.app_name);
             packageName = itemView.findViewById(R.id.package_name);
             appIcon = itemView.findViewById(R.id.app_icon);
+            packageSwitch = itemView.findViewById(R.id.package_switch);
         }
     }
 
@@ -265,6 +332,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         final TextView ruleDescription;
         final TextView ruleDetails;
         final Switch ruleSwitch;
+        int position = -1;  // Track the position this ViewHolder is bound to
 
         RuleViewHolder(View itemView) {
             super(itemView);

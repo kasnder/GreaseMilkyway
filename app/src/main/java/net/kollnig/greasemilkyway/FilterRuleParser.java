@@ -17,8 +17,9 @@ class FilterRuleParser {
 
     /**
      * Parses raw filter rules into structured FilterRule objects.
-     * Rules follow the format: <package-name>##viewId=<view-id>##desc=<pipe-separated-list>##color=<hex-color>##enabled=<true|false>
+     * Rules follow the format: <package-name>##viewId=<view-id>##desc=<pipe-separated-list>##color=<hex-color>##blockTouches=<true|false>##enabled=<true|false>
      * If color is not specified, defaults to white (#FFFFFF)
+     * If blockTouches is not specified, defaults to true
      * If enabled is not specified, defaults to true
      */
     public List<FilterRule> parseRules(String[] raw) {
@@ -58,7 +59,7 @@ class FilterRuleParser {
             String targetViewId = null;
             Set<String> descriptions = new HashSet<>();
             int color = Color.WHITE;
-            boolean enabled = true;
+            boolean blockTouches = true;  // Default to blocking touches
 
             // Parse the rest of the key-value pairs
             for (int i = 1; i < parts.length; i++) {
@@ -96,9 +97,9 @@ class FilterRuleParser {
                             Log.e(TAG, "Invalid color format: " + value);
                         }
                         break;
-                    case "enabled":
-                        enabled = Boolean.parseBoolean(value);
-                        Log.d(TAG, "Enabled: " + enabled);
+                    case "blockTouches":
+                        blockTouches = Boolean.parseBoolean(value);
+                        Log.d(TAG, "Parsed blockTouches: " + blockTouches);
                         break;
                     case "comment":
                         currentComment = value;
@@ -108,13 +109,12 @@ class FilterRuleParser {
             }
 
             // Create the rule
-            FilterRule rule = new FilterRule(packageName, targetViewId, descriptions, color, currentComment);
-            rule.enabled = enabled;
+            FilterRule rule = new FilterRule(packageName, targetViewId, descriptions, color, currentComment, line, blockTouches);
             Log.d(TAG, "Created rule: package=" + packageName +
                     ", viewId=" + targetViewId +
                     ", descriptions=" + descriptions +
                     ", color=" + color +
-                    ", enabled=" + enabled);
+                    ", blockTouches=" + blockTouches);
             rules.add(rule);
         }
 

@@ -22,7 +22,7 @@ GreaseMilkyway is designed to make digital spaces more accessible and manageable
 Rules follow a simple syntax with key-value pairs separated by `##`:
 
 ```
-<package-name>##viewId=<view-id>##desc=<pipe-separated-list>##color=<hex-colour>##enabled=<true|false>
+<package-name>##viewId=<view-id>##desc=<pipe-separated-list>##color=<hex-colour>
 ```
 
 ### Components:
@@ -31,7 +31,6 @@ Rules follow a simple syntax with key-value pairs separated by `##`:
 - `viewId`: (Optional) The resource ID of the view to block
 - `desc`: (Optional) Pipe-separated list of content descriptions to match
 - `color`: (Optional) Hex colour for the overlay (defaults to white #FFFFFF)
-- `enabled`: (Optional) Whether the rule is enabled (defaults to true)
 
 ### Examples:
 
@@ -40,10 +39,13 @@ Rules follow a simple syntax with key-value pairs separated by `##`:
 com.google.android.youtube##viewId=com.google.android.youtube:id/watch_list##desc=Shorts|Go to channel##colour=FFFFFF##comment=Hide next-up video recommendations
 
 # Block WhatsApp AI button
-com.whatsapp##viewId=com.whatsapp:id/fab_second##colour=FFFFFF##comment=Hide AI button
+com.whatsapp##viewId=com.whatsapp:id/fab_second##colour=FFFFFF##blockTouches=true##comment=Hide AI button
 
 # Block Instagram Stories
-com.instagram.android##desc=reels tray container##colour=FFFFFF##comment=Hide Stories
+com.instagram.android##desc=reels tray container##colour=FFFFFF##blockTouches=true##comment=Hide Stories
+
+# Example of a rule that allows touches to pass through
+com.example.app##viewId=com.example.app:id/some_view##colour=FFFFFF##blockTouches=false##comment=Hide but allow interaction
 ```
 
 ## Creating Your Own Rules
@@ -54,7 +56,8 @@ To create effective rules, you'll need to identify the elements you want to bloc
 
 1. **View IDs**: Look for unique identifiers in the layout hierarchy. They usually follow the pattern `package.name:id/identifier`
 2. **Content Descriptions**: Elements often have content descriptions that can be used for matching
-3. **Testing**: After creating a rule:
+3. **Touch Blocking**: Use `blockTouches=true` to prevent interaction with blocked elements, or `blockTouches=false` to allow touches to pass through
+4. **Testing**: After creating a rule:
    - Test it thoroughly
    - Make sure it doesn't block unintended elements
    - Verify it works across different app versions

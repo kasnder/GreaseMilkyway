@@ -290,13 +290,18 @@ public class DistractionControlService extends AccessibilityService {
         blocker.setBackgroundColor(rule.color);
         blocker.setAlpha(1f);
 
+        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+        if (!rule.blockTouches) {
+            flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        }
+
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 area.width(),
                 area.height(),
                 area.left,
                 area.top,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                flags,
                 PixelFormat.TRANSLUCENT);
         lp.gravity = Gravity.TOP | Gravity.START;
 

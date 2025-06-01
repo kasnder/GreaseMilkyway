@@ -16,9 +16,9 @@ import java.util.List;
 public class ServiceConfig {
     private static final String TAG = "ServiceConfig";
     private static final String PREFS_NAME = "LayoutDumpServicePrefs";
-    private static final String KEY_ENABLED = "enabled";
-    private static final String KEY_RULE_ENABLED = "rule_enabled_";
+    public static final String KEY_RULE_ENABLED = "rule_enabled_";
     private static final String KEY_CUSTOM_RULES = "custom_rules";
+    private static final String KEY_PACKAGE_DISABLED = "package_disabled_";
     private static final String DEFAULT_RULES_FILE = "distraction_rules.txt";
 
     private final SharedPreferences prefs;
@@ -31,8 +31,23 @@ public class ServiceConfig {
         this.ruleParser = new FilterRuleParser();
     }
 
-    public void setEnabled(boolean enabled) {
-        prefs.edit().putBoolean(KEY_ENABLED, enabled).apply();
+    public SharedPreferences getPrefs() {
+        return prefs;
+    }
+
+    public void setRuleEnabled(FilterRule rule, boolean enabled) {
+        String key = KEY_RULE_ENABLED + rule.hashCode();
+        prefs.edit().putBoolean(key, enabled).apply();
+    }
+
+    public void setPackageDisabled(String packageName, boolean disabled) {
+        String key = KEY_PACKAGE_DISABLED + packageName;
+        prefs.edit().putBoolean(key, disabled).apply();
+    }
+
+    public boolean isPackageDisabled(String packageName) {
+        String key = KEY_PACKAGE_DISABLED + packageName;
+        return prefs.getBoolean(key, false);
     }
 
     public List<FilterRule> getRules() {
@@ -42,15 +57,13 @@ public class ServiceConfig {
         try {
             InputStream is = context.getAssets().open(DEFAULT_RULES_FILE);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            List<String> defaultRules = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
-                    defaultRules.add(line);
+                    rules.addAll(ruleParser.parseRules(new String[]{line}));
                 }
             }
             reader.close();
-            rules.addAll(ruleParser.parseRules(defaultRules.toArray(new String[0])));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,16 +76,18 @@ public class ServiceConfig {
 
         // Apply saved enabled states
         for (FilterRule rule : rules) {
-            String key = KEY_RULE_ENABLED + rule.packageName + "_" + rule.targetViewId;
-            rule.enabled = prefs.getBoolean(key, true); // Default to enabled if not set
+            String key = KEY_RULE_ENABLED + rule.hashCode();
+            boolean ruleEnabled = prefs.getBoolean(key, true); // Default to enabled if not set
+            
+            // If the package is disabled, force disable all rules for that package
+            if (rule.packageName != null && isPackageDisabled(rule.packageName)) {
+                rule.enabled = false;
+            } else {
+                rule.enabled = ruleEnabled;
+            }
         }
 
         return rules;
-    }
-
-    public void setRuleEnabled(String packageName, String viewId, boolean enabled) {
-        String key = KEY_RULE_ENABLED + packageName + "_" + viewId;
-        prefs.edit().putBoolean(key, enabled).apply();
     }
 
     public String[] getCustomRules() {
