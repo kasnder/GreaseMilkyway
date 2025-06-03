@@ -93,4 +93,4 @@ Each rule should follow the format described in the [Rule Format](#rule-format) 
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details. 
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](https://github.com/kasnder/GreaseMilkyway/blob/main/LICENSE) file for details. 
