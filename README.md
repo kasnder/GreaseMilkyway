@@ -1,7 +1,8 @@
 # GreaseMilkyway
 
-<a href='https://github.com/kasnder/GreaseMilkyway/releases/latest'><img height=70 alt='Get it on Github' src='https://raw.githubusercontent.com/TrackerControl/tracker-control-android/master/images/get-it-on-github.png'/></a>
 <a href='https://play.google.com/store/apps/details?id=net.kollnig.greasemilkyway'><img height=70 alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
+<a href='https://github.com/kasnder/GreaseMilkyway/releases/latest'><img height=70 alt='Get it on Github' src='https://raw.githubusercontent.com/TrackerControl/tracker-control-android/master/images/get-it-on-github.png'/></a>
+<a href='https://apt.izzysoft.de/fdroid/index/apk/net.kollnig.greasemilkyway'><img height=70 alt='Get it on IzzyOnDroid' src='https://raw.githubusercontent.com/TrackerControl/tracker-control-android/master/images/get-it-on-izzy.png'/></a>
 
 GreaseMilkyway is an Android accessibility service designed to help people with attention-related conditions (such as ADHD) manage their digital environment. By allowing users to block distracting content in apps, it helps create a more focused and less overwhelming digital experience.
 
