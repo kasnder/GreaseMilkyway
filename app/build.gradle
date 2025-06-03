@@ -25,7 +25,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     dependenciesInfo {
-        // Disables dependency metadata when building APKs.
         includeInApk = false
     }
 }
