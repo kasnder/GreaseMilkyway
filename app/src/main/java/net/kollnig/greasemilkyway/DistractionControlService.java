@@ -30,6 +30,15 @@ import java.util.Set;
  * using an ad-blocker style filter syntax.
  */
 public class DistractionControlService extends AccessibilityService {
+    
+    //popup tracker
+    private boolean isPopupVisible = false;
+    private View activePopupView = null;
+
+    //time tracker
+    private String currentPackage = "";
+    private long appStartTime = 0;
+    
     //Infinite-scroll vars
     private static final int SCROLL_THRESHOLD_SECONDS = 5;
     private static final int SCROLL_IDLE_TIMEOUT_MS = 3000;
@@ -40,8 +49,12 @@ public class DistractionControlService extends AccessibilityService {
 
     private Handler scrollHandler = new Handler();
     private void showBreakPopup() {
+        if (isPopupVisible) return; 
+        isPopupVisible = true;
+
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.infinite_break, null);
+        activePopupView = popupView;
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
@@ -63,35 +76,44 @@ public class DistractionControlService extends AccessibilityService {
 
         // Add popup to screen
         windowManager.addView(popupView, params);
+        //Time spent
+        long timeSpentMillis = System.currentTimeMillis() - appStartTime;
+        long seconds = timeSpentMillis / 1000;
+        long minutes = seconds / 60;
+        long remainingSeconds = seconds % 60;
+
+        String readableTime = minutes > 0 ?
+                minutes + " min " + remainingSeconds + " sec" :
+                seconds + " sec";
+
+        TextView message = popupView.findViewById(R.id.popup_message);
+         message.setText("You've been scrolling for " + readableTime + ". Time to take a break?");
 
         // Setup buttons
-        Button continueButton = popupView.findViewById(R.id.continue_button);
-        Button exitButton = popupView.findViewById(R.id.exit_button);
+        Button continueButton = popupView.findViewById(R.id.btn_continue);
+        Button exitButton = popupView.findViewById(R.id.btn_break);
 
-        continueButton.setOnClickListener(v -> {
+        View.OnClickListener dismissListener = v -> {
             try {
                 windowManager.removeView(popupView);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            //reset state here
+            isPopupVisible = false;
+            activePopupView = null;
             scrollHandler.removeCallbacks(reminderRunnable);
             reminderShown = true;
             isTrackingScroll = false;
-        });
+        };
+
+
+        continueButton.setOnClickListener(dismissListener);
 
         exitButton.setOnClickListener(v -> {
-            try {
-                windowManager.removeView(popupView);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            //close popup
+            dismissListener.onClick(v);
 
-            // Reset flags and exit
-            scrollHandler.removeCallbacks(reminderRunnable);
-            reminderShown = true;
-            isTrackingScroll = false;
+            //exit
 
             Intent homeIntent = new Intent(Intent.ACTION_MAIN);
             homeIntent.addCategory(Intent.CATEGORY_HOME);
@@ -142,8 +164,8 @@ public class DistractionControlService extends AccessibilityService {
         message.setText("You've seen all new content. Come back later!");
 
         // Setup buttons
-        Button continueButton = popupView.findViewById(R.id.continue_button);
-        Button exitButton = popupView.findViewById(R.id.exit_button);
+        Button continueButton = popupView.findViewById(R.id.btn_continue);
+        Button exitButton = popupView.findViewById(R.id.btn_break);
 
         continueButton.setOnClickListener(v -> {
             try {
@@ -281,17 +303,21 @@ public class DistractionControlService extends AccessibilityService {
         if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
 
-            if (!packageName.equals(getPackageName())) {
+
+            if (packageName.equals(getPackageName())) {
+                return;
+            }
+
+            // scroll tracking popup for YouTube
+            if (packageName.equals("com.google.android.youtube")) {
                 long currentTime = System.currentTimeMillis();
 
-                // If not already tracking, start timer
                 if (!isTrackingScroll) {
                     isTrackingScroll = true;
                     reminderShown = false;
                     scrollHandler.postDelayed(reminderRunnable, SCROLL_THRESHOLD_SECONDS * 1000);
                 }
 
-                // If user paused for too long, cancel tracking
                 if ((currentTime - lastScrollTime) > SCROLL_IDLE_TIMEOUT_MS) {
                     scrollHandler.removeCallbacks(reminderRunnable);
                     isTrackingScroll = false;
@@ -299,6 +325,7 @@ public class DistractionControlService extends AccessibilityService {
 
                 lastScrollTime = currentTime;
             }
+
         }
         
         //Near End Notification
@@ -342,6 +369,15 @@ public class DistractionControlService extends AccessibilityService {
                 overlayManager.forceClearOverlays(windowManager);
                 blockedElements.clear();
             }
+            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            String newPackage = event.getPackageName() != null ? event.getPackageName().toString() : "";
+
+            if (!newPackage.equals(getPackageName()) && !newPackage.equals(currentPackage)) {
+                currentPackage = newPackage;
+                appStartTime = System.currentTimeMillis();  // Setting the start time
+            }
+        }
+
         }
 
         if (!shouldProcessEvent(event)) return;
