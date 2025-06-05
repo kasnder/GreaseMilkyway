@@ -12,6 +12,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.LayoutInflater;
+
+import android.os.Build;
+import android.content.Intent;
+import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +30,145 @@ import java.util.Set;
  * using an ad-blocker style filter syntax.
  */
 public class DistractionControlService extends AccessibilityService {
+    //Infinite-scroll vars
+    private static final int SCROLL_THRESHOLD_SECONDS = 5;
+    private static final int SCROLL_IDLE_TIMEOUT_MS = 3000;
+
+    private long lastScrollTime = 0;
+    private boolean isTrackingScroll = false;
+    private boolean reminderShown = false;
+
+    private Handler scrollHandler = new Handler();
+    private void showBreakPopup() {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.infinite_break, null);
+
+        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
+                        WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                PixelFormat.TRANSLUCENT
+        );
+
+
+        params.gravity = Gravity.CENTER;
+
+        // Add popup to screen
+        windowManager.addView(popupView, params);
+
+        // Setup buttons
+        Button continueButton = popupView.findViewById(R.id.continue_button);
+        Button exitButton = popupView.findViewById(R.id.exit_button);
+
+        continueButton.setOnClickListener(v -> {
+            try {
+                windowManager.removeView(popupView);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //reset state here
+            scrollHandler.removeCallbacks(reminderRunnable);
+            reminderShown = true;
+            isTrackingScroll = false;
+        });
+
+        exitButton.setOnClickListener(v -> {
+            try {
+                windowManager.removeView(popupView);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Reset flags and exit
+            scrollHandler.removeCallbacks(reminderRunnable);
+            reminderShown = true;
+            isTrackingScroll = false;
+
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            getApplicationContext().startActivity(homeIntent);
+        });
+
+    }
+
+    private Runnable reminderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!reminderShown) {
+                showBreakPopup();
+                reminderShown = true;
+                isTrackingScroll = false;
+            }
+        }
+    };
+
+    // nearbottom
+    private boolean bottomReached = false;
+
+    private void showBottomReachedPopup() {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.infinite_break, null);
+
+        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
+                        WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                PixelFormat.TRANSLUCENT
+        );
+
+        params.gravity = Gravity.CENTER;
+        windowManager.addView(popupView, params);
+
+        // Set custom message
+        TextView message = popupView.findViewById(R.id.popup_message);
+        message.setText("You've seen all new content. Come back later!");
+
+        // Setup buttons
+        Button continueButton = popupView.findViewById(R.id.continue_button);
+        Button exitButton = popupView.findViewById(R.id.exit_button);
+
+        continueButton.setOnClickListener(v -> {
+            try {
+                windowManager.removeView(popupView);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        exitButton.setOnClickListener(v -> {
+            try {
+                windowManager.removeView(popupView);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Simulate exit
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            getApplicationContext().startActivity(homeIntent);
+        });
+    }
+    
+    
     private static final String TAG = "DistractionControlService";
     private static final int PROCESSING_DELAY_MS = 20;
     private static final int MAX_OVERLAY_COUNT = 100; // Prevent memory issues
@@ -132,6 +277,50 @@ public class DistractionControlService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (instance == null) return;
+        //handle app scroll tracking
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
+
+            if (!packageName.equals(getPackageName())) {
+                long currentTime = System.currentTimeMillis();
+
+                // If not already tracking, start timer
+                if (!isTrackingScroll) {
+                    isTrackingScroll = true;
+                    reminderShown = false;
+                    scrollHandler.postDelayed(reminderRunnable, SCROLL_THRESHOLD_SECONDS * 1000);
+                }
+
+                // If user paused for too long, cancel tracking
+                if ((currentTime - lastScrollTime) > SCROLL_IDLE_TIMEOUT_MS) {
+                    scrollHandler.removeCallbacks(reminderRunnable);
+                    isTrackingScroll = false;
+                }
+
+                lastScrollTime = currentTime;
+            }
+        }
+        
+        //Near End Notification
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            AccessibilityNodeInfo source = event.getSource();
+            if (source != null && source.isScrollable()) {
+                int itemCount = event.getItemCount();       // total number of items
+                int toIndex = event.getToIndex();           // last visible item index
+
+                if (itemCount > 0 && toIndex >= itemCount - 2) {
+                    Log.d("ScrollWatch", "User has reached near the bottom of the list");
+
+                    // Optional: only show once
+                    if (!bottomReached) {
+                        bottomReached = true;
+                        showBottomReachedPopup();
+                    }
+                } else {
+                    bottomReached = false; // reset if they scroll back up
+                }
+            }
+        }
 
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
