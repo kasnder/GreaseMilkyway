@@ -16,8 +16,16 @@ import android.view.LayoutInflater;
 
 import android.os.Build;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ApplicationInfo;
+
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import android.provider.Settings;
+
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,14 +38,25 @@ import java.util.Set;
  * using an ad-blocker style filter syntax.
  */
 public class DistractionControlService extends AccessibilityService {
-    
+
+    private Map<String, Long> lastLockoutPopupShown = new HashMap<>();
+    private static final long LOCKOUT_POPUP_COOLDOWN_MS = 1000; // 1 minute
+
     //popup tracker
     private boolean isPopupVisible = false;
     private View activePopupView = null;
+    private static final long LOCKOUT_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
+
+    //skip count and timer
+    private Map<String, Integer> skipCounts = new HashMap<>();
+    private Map<String, Long> restrictedUntil = new HashMap<>();
     //time tracker
     private String currentPackage = "";
-    private long appStartTime = 0;
+    private Map<String, Long> appStartTimes = new HashMap<>();
+
+
+
     
     //Infinite-scroll vars
     private static final int SCROLL_THRESHOLD_SECONDS = 5;
@@ -47,9 +66,125 @@ public class DistractionControlService extends AccessibilityService {
     private boolean isTrackingScroll = false;
     private boolean reminderShown = false;
 
+    // nearbottom
+    private boolean bottomReached = false;
+    private static final String TAG = "DistractionControlService";
+    private static final int PROCESSING_DELAY_MS = 20;
+    private static final int MAX_OVERLAY_COUNT = 100; // Prevent memory issues
+
+
     private Handler scrollHandler = new Handler();
-    private void showBreakPopup() {
-        if (isPopupVisible) return; 
+    private String getAppNameFromPackage(String packageName) {
+            PackageManager pm = getPackageManager();
+            try {
+                ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
+                return pm.getApplicationLabel(ai).toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                return packageName; 
+            }
+        }
+
+    private void exitToHome() {
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(homeIntent);
+    }
+
+
+    private void showBreakPopup(String sourceApp, boolean isCaughtUp) {
+    if (isPopupVisible) return;
+
+    // 🛡️ CRITICAL: Prevent crash by checking overlay permission
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getApplicationContext())) {
+        Log.e("OverlayPermission", "Permission not granted. Popup not shown.");
+        return;
+    }
+
+    isPopupVisible = true;
+
+    LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+    View popupView = inflater.inflate(R.layout.infinite_break, null);
+    activePopupView = popupView;
+
+    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+        WindowManager.LayoutParams.WRAP_CONTENT,
+        WindowManager.LayoutParams.WRAP_CONTENT,
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+            ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            : WindowManager.LayoutParams.TYPE_PHONE,
+        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+        PixelFormat.TRANSLUCENT
+    );
+
+    params.gravity = Gravity.CENTER;
+    windowManager.addView(popupView, params);
+
+    // Message
+    TextView message = popupView.findViewById(R.id.popup_message);
+    String appName = getAppNameFromPackage(sourceApp);
+
+    if (isCaughtUp && sourceApp.equals("com.instagram.android")) {
+        message.setText("You've seen all new content on " + appName + ". Come back later!");
+    } else {
+        long startTime = appStartTimes.getOrDefault(sourceApp, System.currentTimeMillis());
+        long timeSpentMillis = System.currentTimeMillis() - startTime;
+        long seconds = timeSpentMillis / 1000;
+        long minutes = seconds / 60;
+        long remainingSeconds = seconds % 60;
+
+        String readableTime = minutes > 0 ?
+            minutes + " min " + remainingSeconds + " sec" :
+            seconds + " sec";
+
+        message.setText("You've been scrolling on " + appName + " for " + readableTime + ". Would you like to take a break?");
+    }
+
+    // Buttons
+    Button continueButton = popupView.findViewById(R.id.btn_continue);
+    Button exitButton = popupView.findViewById(R.id.btn_break);
+
+    View.OnClickListener dismissListener = v -> {
+        try {
+            windowManager.removeView(popupView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        isPopupVisible = false;
+        activePopupView = null;
+        scrollHandler.removeCallbacks(reminderRunnable);
+        reminderShown = true;
+        isTrackingScroll = false;
+    };
+
+    continueButton.setOnClickListener(v -> {
+        dismissListener.onClick(v);
+
+        // Lockout tracking
+        int skips = skipCounts.getOrDefault(sourceApp, 0) + 1;
+        skipCounts.put(sourceApp, skips);
+
+        if (skips >= 3) {
+            restrictedUntil.put(sourceApp, System.currentTimeMillis() + LOCKOUT_DURATION_MS);
+            skipCounts.put(sourceApp, 0);
+            exitToHome();
+        }
+    });
+
+    exitButton.setOnClickListener(v -> {
+        dismissListener.onClick(v);
+        exitToHome();
+    });
+}
+
+
+
+
+    private void showLockoutPopup(String packageName, long minutes, long seconds) {
+        if (isPopupVisible) return;
         isPopupVisible = true;
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -71,73 +206,44 @@ public class DistractionControlService extends AccessibilityService {
                 PixelFormat.TRANSLUCENT
         );
 
-
         params.gravity = Gravity.CENTER;
-
-        // Add popup to screen
         windowManager.addView(popupView, params);
-        //Time spent
-        long timeSpentMillis = System.currentTimeMillis() - appStartTime;
-        long seconds = timeSpentMillis / 1000;
-        long minutes = seconds / 60;
-        long remainingSeconds = seconds % 60;
-
-        String readableTime = minutes > 0 ?
-                minutes + " min " + remainingSeconds + " sec" :
-                seconds + " sec";
 
         TextView message = popupView.findViewById(R.id.popup_message);
-         message.setText("You've been scrolling for " + readableTime + ". Time to take a break?");
+        String appName = getAppNameFromPackage(packageName);
+        message.setText("You've been locked out of " + appName + ". Try again in " + minutes + " min " + seconds + " sec.");
 
-        // Setup buttons
-        Button continueButton = popupView.findViewById(R.id.btn_continue);
-        Button exitButton = popupView.findViewById(R.id.btn_break);
+        // Optional: hide buttons or disable them
+        popupView.findViewById(R.id.btn_continue).setVisibility(View.GONE);
+        popupView.findViewById(R.id.btn_break).setVisibility(View.GONE);
 
-        View.OnClickListener dismissListener = v -> {
+        // Auto-dismiss after 3 seconds
+
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             try {
                 windowManager.removeView(popupView);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            isPopupVisible = false;
+            } catch (Exception ignored) {}
+            isPopupVisible = false;   // ✅ Reset here!
             activePopupView = null;
-            scrollHandler.removeCallbacks(reminderRunnable);
-            reminderShown = true;
-            isTrackingScroll = false;
-        };
-
-
-        continueButton.setOnClickListener(dismissListener);
-
-        exitButton.setOnClickListener(v -> {
-            //close popup
-            dismissListener.onClick(v);
-
-            //exit
-
-            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-            homeIntent.addCategory(Intent.CATEGORY_HOME);
-            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            getApplicationContext().startActivity(homeIntent);
-        });
+        }, 3000);
 
     }
+
 
     private Runnable reminderRunnable = new Runnable() {
         @Override
         public void run() {
             if (!reminderShown) {
-                showBreakPopup();
+                showBreakPopup(currentPackage, false);
                 reminderShown = true;
                 isTrackingScroll = false;
             }
         }
     };
 
-    // nearbottom
-    private boolean bottomReached = false;
-
-    private void showBottomReachedPopup() {
+    // Show Restriction PopUp
+    private void showRestrictionPopup(long minutes, long seconds) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.infinite_break, null);
 
@@ -159,42 +265,23 @@ public class DistractionControlService extends AccessibilityService {
         params.gravity = Gravity.CENTER;
         windowManager.addView(popupView, params);
 
-        // Set custom message
+        // Set restriction message
         TextView message = popupView.findViewById(R.id.popup_message);
-        message.setText("You've seen all new content. Come back later!");
+        message.setText("You've reached your limit. Try again in " + minutes + " min " + seconds + " sec");
 
-        // Setup buttons
-        Button continueButton = popupView.findViewById(R.id.btn_continue);
-        Button exitButton = popupView.findViewById(R.id.btn_break);
+        // Hide buttons
+        popupView.findViewById(R.id.btn_continue).setVisibility(View.GONE);
+        popupView.findViewById(R.id.btn_break).setVisibility(View.GONE);
 
-        continueButton.setOnClickListener(v -> {
+        // Auto-dismiss after 3 seconds
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             try {
                 windowManager.removeView(popupView);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
-        });
-
-        exitButton.setOnClickListener(v -> {
-            try {
-                windowManager.removeView(popupView);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // Simulate exit
-            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-            homeIntent.addCategory(Intent.CATEGORY_HOME);
-            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            getApplicationContext().startActivity(homeIntent);
-        });
+        }, 3000);
     }
     
-    
-    private static final String TAG = "DistractionControlService";
-    private static final int PROCESSING_DELAY_MS = 20;
-    private static final int MAX_OVERLAY_COUNT = 100; // Prevent memory issues
-
     // Singleton instance
     private static DistractionControlService instance;
     private final List<FilterRule> rules = new ArrayList<>();
@@ -299,14 +386,32 @@ public class DistractionControlService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (instance == null) return;
-        //handle app scroll tracking
-        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
+        
+        String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
 
-
-            if (packageName.equals(getPackageName())) {
+        if (packageName.equals(getPackageName())) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (restrictedUntil.containsKey(packageName)) {
+            long until = restrictedUntil.get(packageName);
+            if (now < until) {
+                long lastShown = lastLockoutPopupShown.getOrDefault(packageName, 0L);
+                if (now - lastShown > LOCKOUT_POPUP_COOLDOWN_MS) {
+                    long remaining = until - now;
+                    long minutes = remaining / 60000;
+                    long seconds = (remaining / 1000) % 60;
+                    showLockoutPopup(packageName, minutes, seconds);
+                    lastLockoutPopupShown.put(packageName, now);
+                }
+                exitToHome(); // Prevent access
                 return;
             }
+        }
+
+
+        //handle app scroll tracking
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
 
             // scroll tracking popup for YouTube
             if (packageName.equals("com.google.android.youtube")) {
@@ -328,32 +433,22 @@ public class DistractionControlService extends AccessibilityService {
 
         }
         
-        //Near End Notification
+        //Near End Notification IG
         if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            AccessibilityNodeInfo source = event.getSource();
-            if (source != null && source.isScrollable()) {
-                int itemCount = event.getItemCount();       // total number of items
-                int toIndex = event.getToIndex();           // last visible item index
+                int itemCount = event.getItemCount();
+                int toIndex = event.getToIndex();
 
-                if (itemCount > 0 && toIndex >= itemCount - 2) {
-                    Log.d("ScrollWatch", "User has reached near the bottom of the list");
-
-                    // Optional: only show once
-                    if (!bottomReached) {
-                        bottomReached = true;
-                        showBottomReachedPopup();
-                    }
-                } else {
-                    bottomReached = false; // reset if they scroll back up
+                if (itemCount > 0 && toIndex >= itemCount - 2 && !bottomReached) {
+                    bottomReached = true;
+                    showBreakPopup(currentPackage, true);
+                } else if (toIndex < itemCount - 2) {
+                    bottomReached = false;
                 }
-            }
+            
         }
 
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
-            if (packageName.equals(getPackageName())) {
-                return; // Ignore our own window state changes
-            }
+            if (packageName.equals(getPackageName())) return;
 
             // Check for lockscreen
             if (packageName.equals("com.android.systemui")) {
@@ -363,22 +458,37 @@ public class DistractionControlService extends AccessibilityService {
                 return;
             }
 
-            // Check for common launcher packages
+            // Check for launcher packages
             if (isLauncherPackage(packageName)) {
                 Log.d(TAG, "Clearing overlays due to launcher switch");
                 overlayManager.forceClearOverlays(windowManager);
                 blockedElements.clear();
+                return;
             }
-            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            String newPackage = event.getPackageName() != null ? event.getPackageName().toString() : "";
 
-            if (!newPackage.equals(getPackageName()) && !newPackage.equals(currentPackage)) {
-                currentPackage = newPackage;
-                appStartTime = System.currentTimeMillis();  // Setting the start time
+            // Update current app
+            if (!packageName.equals(currentPackage)) {
+                currentPackage = packageName;
+                if (restrictedUntil.containsKey(currentPackage) && now < restrictedUntil.get(currentPackage)) {
+                    long lastShown = lastLockoutPopupShown.getOrDefault(currentPackage, 0L);
+                    if (now - lastShown > LOCKOUT_POPUP_COOLDOWN_MS) {
+                        long remaining = restrictedUntil.get(currentPackage) - now;
+                        long minutes = remaining / (1000 * 60);
+                        long seconds = (remaining / 1000) % 60;
+
+                        showLockoutPopup(currentPackage, minutes, seconds);
+                        lastLockoutPopupShown.put(currentPackage, now);
+                    }
+
+                    exitToHome();
+                    return;
+                }
+
+                // Not restricted → track time
+                appStartTimes.put(currentPackage, now);
             }
         }
 
-        }
 
         if (!shouldProcessEvent(event)) return;
         ui.removeCallbacks(processEvent);
