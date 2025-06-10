@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,10 +22,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SERVICE_HEADER = 0;
     private static final int TYPE_APP_HEADER = 1;
     private static final int TYPE_RULE = 2;
+    private static final int TYPE_COLLAPSIBLE_SECTION = 3;
+
 
     private final Context context;
     private final ServiceConfig config;
@@ -63,6 +68,63 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return false;
     }
 
+    public static class CollapsibleSectionItem {
+        public String title;
+        public boolean isExpanded;
+        
+        public CollapsibleSectionItem(String title) {
+            this.title = title;
+            this.isExpanded = false;
+        }
+    }
+
+    public class CollapsibleSectionViewHolder extends RecyclerView.ViewHolder {
+        TextView headerText;
+        ImageView expandIcon;
+        LinearLayout contentLayout;
+        Switch youtubeSwitch, igSwitch;
+        private SharedPreferences prefs;
+
+        public CollapsibleSectionViewHolder(View itemView) {
+            super(itemView);
+            headerText = itemView.findViewById(R.id.header_text);
+            expandIcon = itemView.findViewById(R.id.expand_icon);
+            contentLayout = itemView.findViewById(R.id.content_behavioral);
+            youtubeSwitch = itemView.findViewById(R.id.switch_youtube_scroll);
+            igSwitch = itemView.findViewById(R.id.switch_ig_nearend);
+
+            // Initialize SharedPreferences
+            prefs = context.getSharedPreferences("GreasePrefs", Context.MODE_PRIVATE);
+
+            // Set up header click listener for expand/collapse
+            itemView.findViewById(R.id.header_layout).setOnClickListener(v -> toggleExpansion());
+
+            // Restore saved switch states
+            youtubeSwitch.setChecked(prefs.getBoolean("enable_yt_scroll_reminder", true));
+            igSwitch.setChecked(prefs.getBoolean("enable_ig_lockout", true));
+
+            // Set up switch listeners to save changes
+            youtubeSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    prefs.edit().putBoolean("enable_yt_scroll_reminder", isChecked).apply());
+
+            igSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    prefs.edit().putBoolean("enable_ig_lockout", isChecked).apply());
+        }
+
+        private void toggleExpansion() {
+            CollapsibleSectionItem item = (CollapsibleSectionItem) items.get(getAdapterPosition());
+            item.isExpanded = !item.isExpanded;
+
+            if (item.isExpanded) {
+                contentLayout.setVisibility(View.VISIBLE);
+                expandIcon.animate().rotation(180f).setDuration(200).start();
+            } else {
+                contentLayout.setVisibility(View.GONE);
+                expandIcon.animate().rotation(0f).setDuration(200).start();
+            }
+        }
+    }
+
     public void setRules(List<FilterRule> rules) {
         // Create a map of existing rules by their hash code for state preservation
         Map<Integer, Boolean> existingStates = new HashMap<>();
@@ -77,6 +139,9 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         // Add service header
         items.add(new ServiceHeaderItem());
+
+        //add behavioural section
+        items.add(new CollapsibleSectionItem("Behavioral Controls"));
 
         // Group rules by package name
         Map<String, List<FilterRule>> rulesByPackage = new HashMap<>();
@@ -109,9 +174,16 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public int getItemViewType(int position) {
         Object item = items.get(position);
-        if (item instanceof ServiceHeaderItem) return TYPE_SERVICE_HEADER;
-        if (item instanceof AppHeaderItem) return TYPE_APP_HEADER;
-        return TYPE_RULE;
+        if (item instanceof ServiceHeaderItem) {
+            return TYPE_SERVICE_HEADER;
+        } else if (item instanceof AppHeaderItem) {
+            return TYPE_APP_HEADER;
+        } else if (item instanceof CollapsibleSectionItem) {
+            return TYPE_COLLAPSIBLE_SECTION;
+        }
+        else {
+            return TYPE_RULE;
+        }
     }
 
     @NonNull
@@ -123,6 +195,8 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return new ServiceHeaderViewHolder(inflater.inflate(R.layout.item_service_header, parent, false));
             case TYPE_APP_HEADER:
                 return new AppHeaderViewHolder(inflater.inflate(R.layout.item_app_group, parent, false));
+            case TYPE_COLLAPSIBLE_SECTION:
+                return new CollapsibleSectionViewHolder(inflater.inflate(R.layout.item_behaviour_list_collapsible, parent, false));
             default:
                 return new RuleViewHolder(inflater.inflate(R.layout.item_rule, parent, false));
         }

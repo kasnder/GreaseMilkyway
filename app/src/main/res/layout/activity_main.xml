@@ -9,7 +9,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -19,64 +18,16 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-        <!-- Behavioral Nudges Section (collapsible) -->
-        <LinearLayout
-            android:id="@+id/section_behavioral"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@android:color/white"
-            android:padding="12dp">
-
-            <!-- Section header (click to expand/collapse) -->
-            <TextView
-                android:id="@+id/header_behavioral"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Behavioral Nudges"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:drawableEnd="@drawable/expand_circle_down_outline"
-                android:drawablePadding="8dp"
-                android:padding="8dp"
-                android:gravity="center_vertical" />
-
-            <!-- Collapsible content -->
-            <LinearLayout
-                android:id="@+id/content_behavioral"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:paddingTop="8dp">
-
-                <Switch
-                    android:id="@+id/switch_youtube_scroll"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Enable YouTube Scroll Reminder" />
-
-                <Switch
-                    android:id="@+id/switch_ig_nearend"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Enable Instagram Lockout" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- RecyclerView for the rules list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rules_list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:clipToPadding="false"
             android:padding="16dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-    </LinearLayout>
-    
 
-    <!-- Floating Action Button -->
+    </LinearLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/custom_rules_button"
         android:layout_width="wrap_content"
@@ -86,4 +37,5 @@
         android:contentDescription="@string/add_custom_rules"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         app:srcCompat="@android:drawable/ic_input_add" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

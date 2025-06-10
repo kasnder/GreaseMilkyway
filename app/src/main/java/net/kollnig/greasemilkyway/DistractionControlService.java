@@ -14,14 +14,16 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.LayoutInflater;
 
+
 import android.os.Build;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
+import android.content.SharedPreferences;
+import android.content.Context;
 
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import android.provider.Settings;
 
@@ -94,18 +96,36 @@ public class DistractionControlService extends AccessibilityService {
 
 
     private void showBreakPopup(String sourceApp, boolean isCaughtUp) {
-    if (isPopupVisible) return;
+        if (isPopupVisible) return;
 
-    // 🛡️ CRITICAL: Prevent crash by checking overlay permission
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getApplicationContext())) {
-        Log.e("OverlayPermission", "Permission not granted. Popup not shown.");
-        return;
-    }
+        // check user preferences
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("GreasePrefs", Context.MODE_PRIVATE);
 
-    isPopupVisible = true;
+        // Check if popups are enabled for this app type
+        if (sourceApp.equals("com.google.android.youtube")) {
+            boolean ytRemindersEnabled = prefs.getBoolean("enable_yt_scroll_reminder", true);
+            if (!ytRemindersEnabled) {
+                Log.d("PopupControl", "YouTube reminders disabled - skipping popup");
+                return; // User disabled YouTube reminders, don't show popup
+            }
+        } else if (sourceApp.equals("com.instagram.android")) {
+            boolean igLockoutEnabled = prefs.getBoolean("enable_ig_lockout", true);
+            if (!igLockoutEnabled) {
+                Log.d("PopupControl", "Instagram lockout disabled - skipping popup");
+                return; // User disabled Instagram lockout, don't show popup
+            }
+        }
+
+        // Prevent crash by checking overlay permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(getApplicationContext())) {
+            Log.e("OverlayPermission", "Permission not granted. Popup not shown.");
+            return;
+        }
+
+        isPopupVisible = true;
 
     LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-    View popupView = inflater.inflate(R.layout.infinite_break, null);
+    View popupView = inflater.inflate(R.layout.item_infinite_scroll_reminder, null);
     activePopupView = popupView;
 
     WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -188,7 +208,7 @@ public class DistractionControlService extends AccessibilityService {
         isPopupVisible = true;
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.infinite_break, null);
+        View popupView = inflater.inflate(R.layout.item_infinite_scroll_reminder, null);
         activePopupView = popupView;
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -245,7 +265,7 @@ public class DistractionControlService extends AccessibilityService {
     // Show Restriction PopUp
     private void showRestrictionPopup(long minutes, long seconds) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.infinite_break, null);
+        View popupView = inflater.inflate(R.layout.item_infinite_scroll_reminder, null);
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
