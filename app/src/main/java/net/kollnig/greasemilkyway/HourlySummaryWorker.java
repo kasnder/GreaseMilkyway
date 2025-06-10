@@ -1,7 +1,4 @@
 package net.kollnig.greasemilkyway;
-import android.content.pm.PackageManager;
-import android.content.pm.ApplicationInfo;
-
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -49,7 +46,7 @@ public class HourlySummaryWorker extends Worker {
         String finalSummary = summary.toString().trim();
         Log.d("HourlySummaryWorker", " Summary:\n" + finalSummary);
 
-        showFallbackNotification(finalSummary);  // use notification instead of toast
+        showFallbackNotification(finalSummary);  
 
         prefs.edit().remove("collected_notifications").apply();  // 🧹 cleanup
         return Result.success();

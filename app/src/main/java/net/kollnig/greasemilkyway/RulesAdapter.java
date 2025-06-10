@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,11 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.LinearLayout;
+import android.widget.Button;
+import android.widget.NumberPicker;
+import androidx.appcompat.app.AlertDialog;
+
+
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +34,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final int TYPE_APP_HEADER = 1;
     private static final int TYPE_RULE = 2;
     private static final int TYPE_COLLAPSIBLE_SECTION = 3;
+    private static final int TYPE_NOTIFICATION_SETTINGS= 4;
 
 
     private final Context context;
@@ -77,6 +84,11 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             this.isExpanded = false;
         }
     }
+    public class NotificationSettingsItem {
+        // You can later add fields if needed, like title or default values
+    }
+
+
 
     public class CollapsibleSectionViewHolder extends RecyclerView.ViewHolder {
         TextView headerText;
@@ -125,6 +137,74 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
+    public class NotificationSettingsViewHolder extends RecyclerView.ViewHolder {
+        Button btnOpenTimePicker;
+
+        public NotificationSettingsViewHolder(View itemView) {
+            super(itemView);
+            btnOpenTimePicker = itemView.findViewById(R.id.btn_open_time_picker);
+        }
+
+        public void bind(Context context, SharedPreferences prefs) {
+            btnOpenTimePicker.setOnClickListener(v -> {
+                // Inflate the dialog layout
+                View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_time_picker, null);
+
+                // Get NumberPickers
+                NumberPicker hourPicker = dialogView.findViewById(R.id.hour_picker);
+                NumberPicker minutePicker = dialogView.findViewById(R.id.minute_picker);
+                NumberPicker lockoutHourPicker = dialogView.findViewById(R.id.lockout_hour_picker);
+                NumberPicker lockoutMinutePicker = dialogView.findViewById(R.id.lockout_minute_picker);
+
+                // Set ranges
+                hourPicker.setMinValue(0); hourPicker.setMaxValue(23);
+                minutePicker.setMinValue(0); minutePicker.setMaxValue(59);
+                lockoutHourPicker.setMinValue(0); lockoutHourPicker.setMaxValue(23);
+                lockoutMinutePicker.setMinValue(0); lockoutMinutePicker.setMaxValue(59);
+
+                // Load saved values
+                int delayMins = prefs.getInt("notification_delay", 60);
+                hourPicker.setValue(delayMins / 60);
+                minutePicker.setValue(delayMins % 60);
+
+                int lockoutMins = prefs.getInt("lockout_time", 60);
+                lockoutHourPicker.setValue(lockoutMins / 60);
+                lockoutMinutePicker.setValue(lockoutMins % 60);
+
+                // Create AlertDialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setView(dialogView);
+                AlertDialog dialog = builder.create();
+
+                // Handle OK and Cancel
+                Button okBtn = dialogView.findViewById(R.id.ok_button);
+                Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
+
+                okBtn.setOnClickListener(btn -> {
+                    // Get the values from the time pickers
+                    int delay = hourPicker.getValue() * 60 + minutePicker.getValue(); // Convert to minutes
+                    int lockout = lockoutHourPicker.getValue() * 60 + lockoutMinutePicker.getValue(); // Convert to minutes
+
+                    // Save values to SharedPreferences
+//                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                    prefs.edit()
+                            .putInt("notification_delay", delay)
+                            .putInt("lockout_time", lockout)
+                            .apply();
+
+                    // Close the dialog after saving
+                    dialog.dismiss();
+                });
+
+
+                cancelBtn.setOnClickListener(btn -> dialog.dismiss());
+
+                dialog.show();
+            });
+        }
+    }
+
+
     public void setRules(List<FilterRule> rules) {
         // Create a map of existing rules by their hash code for state preservation
         Map<Integer, Boolean> existingStates = new HashMap<>();
@@ -140,8 +220,11 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         // Add service header
         items.add(new ServiceHeaderItem());
 
-        //add behavioural section
+        //add behavioural & timer section
         items.add(new CollapsibleSectionItem("Behavioral Controls"));
+        items.add(new NotificationSettingsItem());
+
+        
 
         // Group rules by package name
         Map<String, List<FilterRule>> rulesByPackage = new HashMap<>();
@@ -172,19 +255,17 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     @Override
+
     public int getItemViewType(int position) {
         Object item = items.get(position);
-        if (item instanceof ServiceHeaderItem) {
-            return TYPE_SERVICE_HEADER;
-        } else if (item instanceof AppHeaderItem) {
-            return TYPE_APP_HEADER;
-        } else if (item instanceof CollapsibleSectionItem) {
-            return TYPE_COLLAPSIBLE_SECTION;
-        }
-        else {
-            return TYPE_RULE;
-        }
+        if (item instanceof ServiceHeaderItem) return TYPE_SERVICE_HEADER;
+        if (item instanceof AppHeaderItem) return TYPE_APP_HEADER;
+        if (item instanceof RuleItem) return TYPE_RULE;
+        if (item instanceof CollapsibleSectionItem) return TYPE_COLLAPSIBLE_SECTION;
+        if (item instanceof NotificationSettingsItem) return TYPE_NOTIFICATION_SETTINGS;
+        return TYPE_RULE;
     }
+
 
     @NonNull
     @Override
@@ -197,10 +278,15 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return new AppHeaderViewHolder(inflater.inflate(R.layout.item_app_group, parent, false));
             case TYPE_COLLAPSIBLE_SECTION:
                 return new CollapsibleSectionViewHolder(inflater.inflate(R.layout.item_behaviour_list_collapsible, parent, false));
+            case TYPE_NOTIFICATION_SETTINGS:
+                return new NotificationSettingsViewHolder(inflater.inflate(R.layout.item_notification_settings, parent, false));
             default:
                 return new RuleViewHolder(inflater.inflate(R.layout.item_rule, parent, false));
         }
     }
+
+
+
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -284,59 +370,128 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     service.updateRules();
                 }
             });
-        } else if (holder instanceof RuleViewHolder && item instanceof RuleItem) {
-            RuleViewHolder viewHolder = (RuleViewHolder) holder;
-            RuleItem ruleItem = (RuleItem) item;
-            FilterRule rule = ruleItem.rule;
-
-            // Store the position in the ViewHolder
-            viewHolder.position = position;
-
-            viewHolder.ruleDescription.setText(rule.description);
-
-            // Build details string
-            StringBuilder details = new StringBuilder();
-            if (rule.targetViewId != null && !rule.targetViewId.isEmpty()) {
-                details.append("View ID: ").append(rule.targetViewId);
-            }
-            if (!rule.contentDescriptions.isEmpty()) {
-                if (details.length() > 0) {
-                    details.append("\n");
-                }
-                details.append("Description: ").append(String.join(", ", rule.contentDescriptions));
-            }
-            viewHolder.ruleDetails.setText(details.toString());
-
-            // Check if the package is disabled
-            boolean isPackageDisabled = config.isPackageDisabled(rule.packageName);
             
-            // Remove any existing listener to prevent duplicate callbacks
-            viewHolder.ruleSwitch.setOnCheckedChangeListener(null);
-            // Set the current state
-            viewHolder.ruleSwitch.setChecked(rule.enabled);
-            // Disable the switch if the package is disabled
-            viewHolder.ruleSwitch.setEnabled(!isPackageDisabled);
-            // Add the listener back
-            viewHolder.ruleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Verify we're still bound to the same position
-                if (viewHolder.position == position) {
-                    if (rule.enabled != isChecked) {  // Only update if the state actually changed
-                        rule.enabled = isChecked;
-                        config.setRuleEnabled(rule, isChecked);
+        }else if (holder instanceof NotificationSettingsViewHolder && item instanceof NotificationSettingsItem) {
+            NotificationSettingsViewHolder viewHolder = (NotificationSettingsViewHolder) holder;
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-                        // Notify the service to update its rules
-                        DistractionControlService service = DistractionControlService.getInstance();
-                        if (service != null) {
-                            service.updateRules();
-                        }
+            // Find the summary text and update it
+            TextView summaryText = viewHolder.itemView.findViewById(R.id.summary_text);
 
-                        if (onRuleStateChangedListener != null) {
-                            onRuleStateChangedListener.onRuleStateChanged(rule);
-                        }
-                    }
-                }
+            int delayMins = prefs.getInt("notification_delay", 60);
+            int lockoutMins = prefs.getInt("lockout_time", 60);
+            String summary = String.format(
+                    "Current: Notification Delay %dh %dm, Lockout Time %dh %dm",
+                    delayMins / 60, delayMins % 60,
+                    lockoutMins / 60, lockoutMins % 60
+            );
+            summaryText.setText(summary);
+
+            // Show time picker on button click
+            viewHolder.btnOpenTimePicker.setOnClickListener(v -> {
+                View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_time_picker, null);
+
+                NumberPicker hourPicker = dialogView.findViewById(R.id.hour_picker);
+                NumberPicker minutePicker = dialogView.findViewById(R.id.minute_picker);
+                NumberPicker lockoutHourPicker = dialogView.findViewById(R.id.lockout_hour_picker);
+                NumberPicker lockoutMinutePicker = dialogView.findViewById(R.id.lockout_minute_picker);
+
+                hourPicker.setMinValue(0); hourPicker.setMaxValue(23);
+                minutePicker.setMinValue(0); minutePicker.setMaxValue(59);
+                lockoutHourPicker.setMinValue(0); lockoutHourPicker.setMaxValue(23);
+                lockoutMinutePicker.setMinValue(0); lockoutMinutePicker.setMaxValue(59);
+
+                hourPicker.setValue(delayMins / 60);
+                minutePicker.setValue(delayMins % 60);
+                lockoutHourPicker.setValue(lockoutMins / 60);
+                lockoutMinutePicker.setValue(lockoutMins % 60);
+
+                AlertDialog dialog = new AlertDialog.Builder(context)
+                        .setView(dialogView)
+                        .create();
+
+                dialogView.findViewById(R.id.ok_button).setOnClickListener(ok -> {
+                    int newDelay = hourPicker.getValue() * 60 + minutePicker.getValue();
+                    int newLockout = lockoutHourPicker.getValue() * 60 + lockoutMinutePicker.getValue();
+
+                    prefs.edit()
+                            .putInt("notification_delay", newDelay)
+                            .putInt("lockout_time", newLockout)
+                            .apply();
+
+                    // Update summary text immediately
+                    String newSummary = String.format(
+                            "Current: Notification Delay %dh %dm, Lockout Time %dh %dm",
+                            newDelay / 60, newDelay % 60,
+                            newLockout / 60, newLockout % 60
+                    );
+                    summaryText.setText(newSummary);
+
+                    dialog.dismiss();
+                });
+
+                dialogView.findViewById(R.id.cancel_button).setOnClickListener(cancel -> dialog.dismiss());
+
+                dialog.show();
             });
         }
+
+
+
+
+        else if (holder instanceof RuleViewHolder && item instanceof RuleItem) {
+                RuleViewHolder viewHolder = (RuleViewHolder) holder;
+                RuleItem ruleItem = (RuleItem) item;
+                FilterRule rule = ruleItem.rule;
+
+                // Store the position in the ViewHolder
+                viewHolder.position = position;
+
+                viewHolder.ruleDescription.setText(rule.description);
+
+                // Build details string
+                StringBuilder details = new StringBuilder();
+                if (rule.targetViewId != null && !rule.targetViewId.isEmpty()) {
+                    details.append("View ID: ").append(rule.targetViewId);
+                }
+                if (!rule.contentDescriptions.isEmpty()) {
+                    if (details.length() > 0) {
+                        details.append("\n");
+                    }
+                    details.append("Description: ").append(String.join(", ", rule.contentDescriptions));
+                }
+                viewHolder.ruleDetails.setText(details.toString());
+
+                // Check if the package is disabled
+                boolean isPackageDisabled = config.isPackageDisabled(rule.packageName);
+                
+                // Remove any existing listener to prevent duplicate callbacks
+                viewHolder.ruleSwitch.setOnCheckedChangeListener(null);
+                // Set the current state
+                viewHolder.ruleSwitch.setChecked(rule.enabled);
+                // Disable the switch if the package is disabled
+                viewHolder.ruleSwitch.setEnabled(!isPackageDisabled);
+                // Add the listener back
+                viewHolder.ruleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    // Verify we're still bound to the same position
+                    if (viewHolder.position == position) {
+                        if (rule.enabled != isChecked) {  // Only update if the state actually changed
+                            rule.enabled = isChecked;
+                            config.setRuleEnabled(rule, isChecked);
+
+                            // Notify the service to update its rules
+                            DistractionControlService service = DistractionControlService.getInstance();
+                            if (service != null) {
+                                service.updateRules();
+                            }
+
+                            if (onRuleStateChangedListener != null) {
+                                onRuleStateChangedListener.onRuleStateChanged(rule);
+                            }
+                        }
+                    }
+                });
+            }
     }
 
     @Override

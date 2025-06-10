@@ -13,6 +13,8 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.LayoutInflater;
+import android.preference.PreferenceManager;
+
 
 
 import android.os.Build;
@@ -47,7 +49,7 @@ public class DistractionControlService extends AccessibilityService {
     //popup tracker
     private boolean isPopupVisible = false;
     private View activePopupView = null;
-    private static final long LOCKOUT_DURATION_MS = 60 * 60 * 1000; // 1 hour
+    // private static final long LOCKOUT_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
 
     //skip count and timer
@@ -188,17 +190,24 @@ public class DistractionControlService extends AccessibilityService {
         skipCounts.put(sourceApp, skips);
 
         if (skips >= 3) {
-            restrictedUntil.put(sourceApp, System.currentTimeMillis() + LOCKOUT_DURATION_MS);
+            SharedPreferences delayPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            int lockoutMinutes = delayPrefs.getInt("lockout_time", 60);
+
+            long lockoutDuration = lockoutMinutes * 60L * 1000L; 
+            long lockoutUntil = System.currentTimeMillis() + lockoutDuration;
+
+            restrictedUntil.put(sourceApp, lockoutUntil);
             skipCounts.put(sourceApp, 0);
             exitToHome();
         }
+
     });
 
     exitButton.setOnClickListener(v -> {
         dismissListener.onClick(v);
         exitToHome();
     });
-}
+}              
 
 
 

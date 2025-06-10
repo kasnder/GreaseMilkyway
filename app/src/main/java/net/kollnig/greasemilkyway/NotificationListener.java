@@ -7,8 +7,9 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
-
 import android.preference.PreferenceManager;
+
+
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
@@ -32,7 +33,9 @@ public class NotificationListener extends NotificationListenerService {
 
         // Convert package name to app name
         String appName = getAppNameFromPackage(pkg);
-        String entry = appName + ": • " + title + ": " + text;
+        long timestamp = System.currentTimeMillis();
+        String entry = timestamp + "::" + appName + ": • " + title + ": " + text;
+
         Log.d("NotificationListener", "Captured: " + entry);
 
         // Store safely
@@ -45,11 +48,18 @@ public class NotificationListener extends NotificationListenerService {
         Log.d("NotificationListener", "✅ Scheduled summary worker.");
 
         // Schedule worker
+        SharedPreferences delayPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        int delayMinutes = delayPrefs.getInt("notification_delay", 60);
+
+        WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("notification_summary");
+
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(HourlySummaryWorker.class)
-                .setInitialDelay(1, TimeUnit.MINUTES)
+                .setInitialDelay(delayMinutes, TimeUnit.MINUTES)
+                .addTag("notification_summary")
                 .build();
+
         WorkManager.getInstance(getApplicationContext()).enqueue(work);
-        cancelNotification(sbn.getKey());
+
     }
 
     private String getAppNameFromPackage(String packageName) {

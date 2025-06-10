@@ -1,21 +1,16 @@
 package net.kollnig.greasemilkyway;
 
 import android.content.Intent;
-
-import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.widget.Switch;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.net.Uri;
-
-
 
 import androidx.work.WorkManager;
 import java.util.concurrent.TimeUnit;
@@ -56,40 +51,6 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
             }
         }
-
-//
-//        // Collapsible section behavior
-//        TextView header = findViewById(R.id.header_text);
-//        LinearLayout content = findViewById(R.id.content_behavioral);
-//
-//        header.setOnClickListener(v -> {
-//            if (content.getVisibility() == View.VISIBLE) {
-//                content.setVisibility(View.GONE);
-//                header.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.expand_circle_down_outline, 0);
-//
-//            } else {
-//                content.setVisibility(View.VISIBLE);
-//                header.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.expand_circle_up_outline, 0);
-//            }
-//        });
-
-//
-//        SharedPreferences prefs = getSharedPreferences("GreasePrefs", MODE_PRIVATE);
-//
-//        Switch ytSwitch = findViewById(R.id.switch_youtube_scroll);
-//        Switch igSwitch = findViewById(R.id.switch_ig_nearend);
-//
-//
-//        // Restore saved states
-//        ytSwitch.setChecked(prefs.getBoolean("enable_yt_scroll_reminder", true));
-//        igSwitch.setChecked(prefs.getBoolean("enable_ig_lockout", true));
-//
-//        // Save changes on toggle
-//        ytSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
-//                prefs.edit().putBoolean("enable_yt_scroll_reminder", isChecked).apply());
-//
-//        igSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
-//                prefs.edit().putBoolean("enable_ig_lockout", isChecked).apply());
 
 
         // Setup toolbar
