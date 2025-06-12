@@ -40,13 +40,13 @@ Rules follow a simple syntax with key-value pairs separated by `##`:
 com.google.android.youtube##viewId=com.google.android.youtube:id/watch_list##desc=Shorts|Go to channel##colour=FFFFFF##comment=Hide next-up video recommendations
 
 # Block WhatsApp AI button
-com.whatsapp##viewId=com.whatsapp:id/fab_second##colour=FFFFFF##blockTouches=true##comment=Hide AI button
+com.whatsapp##viewId=com.whatsapp:id/fab_second##blockTouches=true##comment=Hide AI button
 
 # Block Instagram Stories
-com.instagram.android##desc=reels tray container##colour=FFFFFF##blockTouches=true##comment=Hide Stories
+com.instagram.android##desc=reels tray container##blockTouches=true##comment=Hide Stories
 
 # Example of a rule that allows touches to pass through
-com.example.app##viewId=com.example.app:id/some_view##colour=FFFFFF##blockTouches=false##comment=Hide but allow interaction
+com.example.app##viewId=com.example.app:id/some_view##color=FFFFFF##blockTouches=false##comment=Hide but allow interaction
 ```
 
 ## Creating Your Own Rules

@@ -46,7 +46,7 @@ public class CustomRulesActivity extends AppCompatActivity {
         String rulesText = rulesEditor.getText().toString();
         String[] rules = rulesText.split("\n");
         
-        // Validate rules
+        // Parse rules
         FilterRuleParser parser = new FilterRuleParser();
         try {
             parser.parseRules(rules);

@@ -58,7 +58,7 @@ class FilterRuleParser {
 
             String targetViewId = null;
             Set<String> descriptions = new HashSet<>();
-            int color = Color.WHITE;
+            int color = Color.WHITE;  // Default to white
             boolean blockTouches = true;  // Default to blocking touches
 
             // Parse the rest of the key-value pairs

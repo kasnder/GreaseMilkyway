@@ -2,6 +2,8 @@ package net.kollnig.greasemilkyway;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -287,7 +289,18 @@ public class DistractionControlService extends AccessibilityService {
         }
 
         View blocker = new View(this);
-        blocker.setBackgroundColor(rule.color);
+        
+        // Check if dark mode is enabled
+        boolean isDarkMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        int color = rule.color;
+        
+        // Only change the default white color to black in dark mode
+        // If a color was explicitly specified in the rule (including white), keep it as is
+        if (color == Color.WHITE && isDarkMode && !rule.ruleString.contains("color=")) {
+            color = Color.BLACK;
+        }
+        
+        blocker.setBackgroundColor(color);
         blocker.setAlpha(1f);
 
         int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
