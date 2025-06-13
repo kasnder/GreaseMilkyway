@@ -53,7 +53,7 @@ public class NotificationListener extends NotificationListenerService {
 
         WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag("notification_summary");
 
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(HourlySummaryWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NotificationSummaryWorker.class)
                 .setInitialDelay(delayMinutes, TimeUnit.MINUTES)
                 .addTag("notification_summary")
                 .build();

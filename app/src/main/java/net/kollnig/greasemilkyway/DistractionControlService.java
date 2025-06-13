@@ -32,10 +32,13 @@ import android.provider.Settings;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+
 
 /**
  * An accessibility service that helps control distractions by blocking specific content in Android apps
@@ -43,16 +46,29 @@ import java.util.Set;
  */
 public class DistractionControlService extends AccessibilityService {
 
+    //list of social media apps to regulate usage
+    private static final List<String> KNOWN_SOCIAL_APPS = Arrays.asList(
+    "com.instagram.android",
+    "com.google.android.youtube",
+    "com.zhiliaoapp.musically", 
+    "com.snapchat.android",
+    "com.facebook.katana",
+    "com.twitter.android",
+    "com.whatsapp"
+  
+);
+
+
     private Map<String, Long> lastLockoutPopupShown = new HashMap<>();
-    private static final long LOCKOUT_POPUP_COOLDOWN_MS = 1000; // 1 minute
+    private static final long LOCKOUT_POPUP_COOLDOWN_MS = 1000;
 
     //popup tracker
     private boolean isPopupVisible = false;
     private View activePopupView = null;
-    // private static final long LOCKOUT_DURATION_MS = 60 * 60 * 1000; // 1 hour
+    
 
 
-    //skip count and timer
+    //skip_count and timer
     private Map<String, Integer> skipCounts = new HashMap<>();
     private Map<String, Long> restrictedUntil = new HashMap<>();
     //time tracker
@@ -74,7 +90,7 @@ public class DistractionControlService extends AccessibilityService {
     private boolean bottomReached = false;
     private static final String TAG = "DistractionControlService";
     private static final int PROCESSING_DELAY_MS = 20;
-    private static final int MAX_OVERLAY_COUNT = 100; // Prevent memory issues
+    private static final int MAX_OVERLAY_COUNT = 100;
 
 
     private Handler scrollHandler = new Handler();
@@ -98,6 +114,26 @@ public class DistractionControlService extends AccessibilityService {
 
 
     private void showBreakPopup(String sourceApp, boolean isCaughtUp) {
+        if (!isMonitoredSocialApp(sourceApp)) {
+        Log.d(TAG, "Ignoring non-social app: " + sourceApp);
+        return;
+    }
+    // Load user-defined scroll duration before popup
+    SharedPreferences delayPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    int scrollThresholdMins = delayPrefs.getInt("break_reminder_delay", 30); // fallback to 30 mins
+    long scrollThresholdMillis = scrollThresholdMins * 60L * 1000L;
+
+    // How long has the user been on this app?
+    long startTime = appStartTimes.getOrDefault(sourceApp, System.currentTimeMillis());
+    long timeSpentMillis = System.currentTimeMillis() - startTime;
+
+    if (timeSpentMillis < scrollThresholdMillis) {
+        Log.d(TAG, "Scroll time not yet reached (" + timeSpentMillis / 1000 + "s < " + scrollThresholdMillis / 1000 + "s), skipping popup.");
+        return;
+    }
+
+
+
         if (isPopupVisible) return;
 
         // check user preferences
@@ -108,13 +144,13 @@ public class DistractionControlService extends AccessibilityService {
             boolean ytRemindersEnabled = prefs.getBoolean("enable_yt_scroll_reminder", true);
             if (!ytRemindersEnabled) {
                 Log.d("PopupControl", "YouTube reminders disabled - skipping popup");
-                return; // User disabled YouTube reminders, don't show popup
+                return;
             }
         } else if (sourceApp.equals("com.instagram.android")) {
             boolean igLockoutEnabled = prefs.getBoolean("enable_ig_lockout", true);
             if (!igLockoutEnabled) {
                 Log.d("PopupControl", "Instagram lockout disabled - skipping popup");
-                return; // User disabled Instagram lockout, don't show popup
+                return;
             }
         }
 
@@ -123,6 +159,7 @@ public class DistractionControlService extends AccessibilityService {
             Log.e("OverlayPermission", "Permission not granted. Popup not shown.");
             return;
         }
+
 
         isPopupVisible = true;
 
@@ -152,8 +189,8 @@ public class DistractionControlService extends AccessibilityService {
     if (isCaughtUp && sourceApp.equals("com.instagram.android")) {
         message.setText("You've seen all new content on " + appName + ". Come back later!");
     } else {
-        long startTime = appStartTimes.getOrDefault(sourceApp, System.currentTimeMillis());
-        long timeSpentMillis = System.currentTimeMillis() - startTime;
+        
+        
         long seconds = timeSpentMillis / 1000;
         long minutes = seconds / 60;
         long remainingSeconds = seconds % 60;
@@ -185,12 +222,11 @@ public class DistractionControlService extends AccessibilityService {
     continueButton.setOnClickListener(v -> {
         dismissListener.onClick(v);
 
-        // Lockout tracking
+        // Lockout logic
         int skips = skipCounts.getOrDefault(sourceApp, 0) + 1;
         skipCounts.put(sourceApp, skips);
 
         if (skips >= 3) {
-            SharedPreferences delayPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             int lockoutMinutes = delayPrefs.getInt("lockout_time", 60);
 
             long lockoutDuration = lockoutMinutes * 60L * 1000L; 
@@ -207,7 +243,19 @@ public class DistractionControlService extends AccessibilityService {
         dismissListener.onClick(v);
         exitToHome();
     });
-}              
+}          
+    private boolean isMonitoredSocialApp(String packageName) {
+        if (!KNOWN_SOCIAL_APPS.contains(packageName)) return false;
+
+        try {
+            getPackageManager().getPackageInfo(packageName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    
 
 
 
@@ -242,11 +290,10 @@ public class DistractionControlService extends AccessibilityService {
         String appName = getAppNameFromPackage(packageName);
         message.setText("You've been locked out of " + appName + ". Try again in " + minutes + " min " + seconds + " sec.");
 
-        // Optional: hide buttons or disable them
+        // hide buttons
         popupView.findViewById(R.id.btn_continue).setVisibility(View.GONE);
         popupView.findViewById(R.id.btn_break).setVisibility(View.GONE);
 
-        // Auto-dismiss after 3 seconds
 
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -439,8 +486,13 @@ public class DistractionControlService extends AccessibilityService {
         }
 
 
+
         //handle app scroll tracking
         if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+                // Track app open time
+            if (!appStartTimes.containsKey(packageName)) {
+                appStartTimes.put(packageName, System.currentTimeMillis());
+            }
 
             // scroll tracking popup for YouTube
             if (packageName.equals("com.google.android.youtube")) {

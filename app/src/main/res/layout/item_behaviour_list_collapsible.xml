@@ -49,13 +49,13 @@
             android:id="@+id/switch_youtube_scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Enable YouTube Scroll Reminder" />
+            android:text="Show reminder to take a break" />
 
         <Switch
             android:id="@+id/switch_ig_nearend"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Enable Instagram Lockout" />
+            android:text="Notify when no new content is left- Ig" />
 
     </LinearLayout>
 

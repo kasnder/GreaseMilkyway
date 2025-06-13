@@ -16,7 +16,7 @@ import androidx.work.WorkManager;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
+
 import android.os.Build;
 import android.content.pm.PackageManager;
 import androidx.work.ExistingWorkPolicy;
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("SummaryWorker", "Scheduling test summary worker...");
 
         OneTimeWorkRequest testWork =
-            new OneTimeWorkRequest.Builder(HourlySummaryWorker.class)
+            new OneTimeWorkRequest.Builder(NotificationSummaryWorker.class)
                 .setInitialDelay(1, TimeUnit.MINUTES) // ⏱️ set to 1 minute
                 .build();
 

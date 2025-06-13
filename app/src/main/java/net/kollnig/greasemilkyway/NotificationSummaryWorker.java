@@ -17,9 +17,9 @@ import androidx.work.WorkerParameters;
 
 import java.util.Set;
 
-public class HourlySummaryWorker extends Worker {
+public class NotificationSummaryWorker extends Worker {
 
-    public HourlySummaryWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+    public NotificationSummaryWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
 

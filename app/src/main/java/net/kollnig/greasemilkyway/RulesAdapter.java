@@ -17,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.Button;
 import android.widget.NumberPicker;
 import androidx.appcompat.app.AlertDialog;
+import android.util.Log;
+
 
 
 
@@ -145,55 +147,69 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             btnOpenTimePicker = itemView.findViewById(R.id.btn_open_time_picker);
         }
 
-        public void bind(Context context, SharedPreferences prefs) {
+        public void bind(Context context, SharedPreferences prefs,TextView summaryText) {
             btnOpenTimePicker.setOnClickListener(v -> {
-                // Inflate the dialog layout
                 View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_time_picker, null);
 
-                // Get NumberPickers
+                // Get pickers
                 NumberPicker hourPicker = dialogView.findViewById(R.id.hour_picker);
                 NumberPicker minutePicker = dialogView.findViewById(R.id.minute_picker);
+                NumberPicker breakHourPicker = dialogView.findViewById(R.id.break_reminder_hour_picker);
+                NumberPicker breakMinutePicker = dialogView.findViewById(R.id.break_reminder_minute_picker);
                 NumberPicker lockoutHourPicker = dialogView.findViewById(R.id.lockout_hour_picker);
                 NumberPicker lockoutMinutePicker = dialogView.findViewById(R.id.lockout_minute_picker);
 
-                // Set ranges
+                // Setup picker ranges and current values
                 hourPicker.setMinValue(0); hourPicker.setMaxValue(23);
                 minutePicker.setMinValue(0); minutePicker.setMaxValue(59);
+                int notificationDelay = prefs.getInt("notification_delay", 60);
+                hourPicker.setValue(notificationDelay / 60);
+                minutePicker.setValue(notificationDelay % 60);
+
+                breakHourPicker.setMinValue(0); breakHourPicker.setMaxValue(3);
+                breakMinutePicker.setMinValue(0); breakMinutePicker.setMaxValue(59);
+                int breakDelay = prefs.getInt("break_reminder_delay", 30);
+                breakHourPicker.setValue(breakDelay / 60);
+                breakMinutePicker.setValue(breakDelay % 60);
+
                 lockoutHourPicker.setMinValue(0); lockoutHourPicker.setMaxValue(23);
                 lockoutMinutePicker.setMinValue(0); lockoutMinutePicker.setMaxValue(59);
+                int lockoutTime = prefs.getInt("lockout_time", 60);
+                lockoutHourPicker.setValue(lockoutTime / 60);
+                lockoutMinutePicker.setValue(lockoutTime % 60);
 
-                // Load saved values
-                int delayMins = prefs.getInt("notification_delay", 60);
-                hourPicker.setValue(delayMins / 60);
-                minutePicker.setValue(delayMins % 60);
+                // Build and show dialog
+                AlertDialog dialog = new AlertDialog.Builder(context)
+                        .setView(dialogView)
+                        .create();
 
-                int lockoutMins = prefs.getInt("lockout_time", 60);
-                lockoutHourPicker.setValue(lockoutMins / 60);
-                lockoutMinutePicker.setValue(lockoutMins % 60);
-
-                // Create AlertDialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setView(dialogView);
-                AlertDialog dialog = builder.create();
-
-                // Handle OK and Cancel
                 Button okBtn = dialogView.findViewById(R.id.ok_button);
                 Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
 
                 okBtn.setOnClickListener(btn -> {
-                    // Get the values from the time pickers
-                    int delay = hourPicker.getValue() * 60 + minutePicker.getValue(); // Convert to minutes
-                    int lockout = lockoutHourPicker.getValue() * 60 + lockoutMinutePicker.getValue(); // Convert to minutes
+                    try {
+                        int delay = hourPicker.getValue() * 60 + minutePicker.getValue();
+                        int breakDelayMins = breakHourPicker.getValue() * 60 + breakMinutePicker.getValue();
+                        int lockout = lockoutHourPicker.getValue() * 60 + lockoutMinutePicker.getValue();
 
-                    // Save values to SharedPreferences
-//                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-                    prefs.edit()
-                            .putInt("notification_delay", delay)
-                            .putInt("lockout_time", lockout)
-                            .apply();
+                        prefs.edit()
+                                .putInt("notification_delay", delay)
+                                .putInt("break_reminder_delay", breakDelayMins)
+                                .putInt("lockout_time", lockout)
+                                .apply();
 
-                    // Close the dialog after saving
-                    dialog.dismiss();
+                        // ✅ Update passed reference directly
+                        summaryText.setText(String.format(
+                                "Current Settings:\n• Notification Delay: %dh %dm\n• Break Reminder: %dh %dm\n• Lockout Time: %dh %dm",
+                                delay / 60, delay % 60,
+                                breakDelayMins / 60, breakDelayMins % 60,
+                                lockout / 60, lockout % 60
+                        ));
+
+                        dialog.dismiss();
+                    } catch (Exception e) {
+                        Log.e("SettingsDialog", "Failed to save or update settings", e);
+                    }
                 });
 
 
@@ -202,7 +218,12 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 dialog.show();
             });
         }
+
+
+
+
     }
+
 
 
     public void setRules(List<FilterRule> rules) {
@@ -379,61 +400,22 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             TextView summaryText = viewHolder.itemView.findViewById(R.id.summary_text);
 
             int delayMins = prefs.getInt("notification_delay", 60);
+            int breakMins = prefs.getInt("break_reminder_delay", 30);
             int lockoutMins = prefs.getInt("lockout_time", 60);
+
             String summary = String.format(
-                    "Current: Notification Delay %dh %dm, Lockout Time %dh %dm",
+                    "Current Settings:\n• Notification Delay: %dh %dm\n• Break Reminder: %dh %dm\n• Lockout Time: %dh %dm",
                     delayMins / 60, delayMins % 60,
+                    breakMins / 60, breakMins % 60,
                     lockoutMins / 60, lockoutMins % 60
             );
+
+
             summaryText.setText(summary);
+            viewHolder.bind(context, prefs, summaryText);
 
-            // Show time picker on button click
-            viewHolder.btnOpenTimePicker.setOnClickListener(v -> {
-                View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_time_picker, null);
 
-                NumberPicker hourPicker = dialogView.findViewById(R.id.hour_picker);
-                NumberPicker minutePicker = dialogView.findViewById(R.id.minute_picker);
-                NumberPicker lockoutHourPicker = dialogView.findViewById(R.id.lockout_hour_picker);
-                NumberPicker lockoutMinutePicker = dialogView.findViewById(R.id.lockout_minute_picker);
 
-                hourPicker.setMinValue(0); hourPicker.setMaxValue(23);
-                minutePicker.setMinValue(0); minutePicker.setMaxValue(59);
-                lockoutHourPicker.setMinValue(0); lockoutHourPicker.setMaxValue(23);
-                lockoutMinutePicker.setMinValue(0); lockoutMinutePicker.setMaxValue(59);
-
-                hourPicker.setValue(delayMins / 60);
-                minutePicker.setValue(delayMins % 60);
-                lockoutHourPicker.setValue(lockoutMins / 60);
-                lockoutMinutePicker.setValue(lockoutMins % 60);
-
-                AlertDialog dialog = new AlertDialog.Builder(context)
-                        .setView(dialogView)
-                        .create();
-
-                dialogView.findViewById(R.id.ok_button).setOnClickListener(ok -> {
-                    int newDelay = hourPicker.getValue() * 60 + minutePicker.getValue();
-                    int newLockout = lockoutHourPicker.getValue() * 60 + lockoutMinutePicker.getValue();
-
-                    prefs.edit()
-                            .putInt("notification_delay", newDelay)
-                            .putInt("lockout_time", newLockout)
-                            .apply();
-
-                    // Update summary text immediately
-                    String newSummary = String.format(
-                            "Current: Notification Delay %dh %dm, Lockout Time %dh %dm",
-                            newDelay / 60, newDelay % 60,
-                            newLockout / 60, newLockout % 60
-                    );
-                    summaryText.setText(newSummary);
-
-                    dialog.dismiss();
-                });
-
-                dialogView.findViewById(R.id.cancel_button).setOnClickListener(cancel -> dialog.dismiss());
-
-                dialog.show();
-            });
         }
 
 

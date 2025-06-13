@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notification Summary Delay"
+            android:text="Group notifications and show every"
             android:textSize="16sp"
             android:layout_marginBottom="8dp" />
 
@@ -37,7 +36,9 @@
             <NumberPicker
                 android:id="@+id/hour_picker"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -59,12 +60,56 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp" />
         </LinearLayout>
+        <!-- Break Reminder Trigger Time -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Prompt me to take a break after"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginBottom="24dp">
+
+            <NumberPicker
+                android:id="@+id/break_reminder_hour_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="h"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="8dp" />
+
+            <NumberPicker
+                android:id="@+id/break_reminder_minute_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="m"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
 
         <!-- Lockout Time Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="App Lockout Time"
+            android:text="Time app remains inaccessible after skipping reminders"
             android:textSize="16sp"
             android:layout_marginBottom="8dp" />
 
@@ -79,7 +124,9 @@
             <NumberPicker
                 android:id="@+id/lockout_hour_picker"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -92,7 +139,9 @@
             <NumberPicker
                 android:id="@+id/lockout_minute_picker"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
