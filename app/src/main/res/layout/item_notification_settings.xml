@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="24dp"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Row with instruction text and button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/instruction_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Set notification timer and how long apps stay locked."
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_open_time_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Time" />
+    </LinearLayout>
+
+    <!-- Summary Text -->
+    <TextView
+        android:id="@+id/summary_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current: Notification Delay 1h, Lockout Time 1h"
+        android:textColor="@android:color/darker_gray" />
+</LinearLayout>
+

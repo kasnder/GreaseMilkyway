@@ -10,6 +10,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.net.Uri;
+
+import androidx.work.WorkManager;
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.OneTimeWorkRequest;
+
+import android.os.Build;
+import android.content.pm.PackageManager;
+import androidx.work.ExistingWorkPolicy;
+
+
+
 
 import java.util.List;
 
@@ -20,8 +33,25 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 🔐 Check for overlay permission (SYSTEM_ALERT_WINDOW)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Intent overlayIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + getPackageName()));
+            // startActivityForResult(overlayIntent, 1000);
+}
+
+
+        // 🔔 Check for POST_NOTIFICATIONS permission (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
+            }
+        }
+
 
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -47,7 +77,25 @@ public class MainActivity extends AppCompatActivity {
 
         // Load current settings
         loadSettings();
+
+        scheduleHourlySummaryWorker();
+
+
     }
+ 
+    private void scheduleHourlySummaryWorker() {
+        Log.d("SummaryWorker", "Scheduling test summary worker...");
+
+        OneTimeWorkRequest testWork =
+            new OneTimeWorkRequest.Builder(NotificationSummaryWorker.class)
+                .setInitialDelay(1, TimeUnit.MINUTES) // ⏱️ set to 1 minute
+                .build();
+
+        WorkManager.getInstance(getApplicationContext())
+            .enqueueUniqueWork("TestSummaryWorker", ExistingWorkPolicy.REPLACE, testWork);
+    }
+
+
 
     @Override
     protected void onResume() {
@@ -117,3 +165,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

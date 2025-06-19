@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.Button;
+import android.widget.NumberPicker;
+import androidx.appcompat.app.AlertDialog;
+import android.util.Log;
+
+
+
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,10 +30,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SERVICE_HEADER = 0;
     private static final int TYPE_APP_HEADER = 1;
     private static final int TYPE_RULE = 2;
+    private static final int TYPE_COLLAPSIBLE_SECTION = 3;
+    private static final int TYPE_NOTIFICATION_SETTINGS= 4;
+
 
     private final Context context;
     private final ServiceConfig config;
@@ -63,6 +77,155 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return false;
     }
 
+    public static class CollapsibleSectionItem {
+        public String title;
+        public boolean isExpanded;
+        
+        public CollapsibleSectionItem(String title) {
+            this.title = title;
+            this.isExpanded = false;
+        }
+    }
+    public class NotificationSettingsItem {
+        // You can later add fields if needed, like title or default values
+    }
+
+
+
+    public class CollapsibleSectionViewHolder extends RecyclerView.ViewHolder {
+        TextView headerText;
+        ImageView expandIcon;
+        LinearLayout contentLayout;
+        Switch youtubeSwitch, igSwitch;
+        private SharedPreferences prefs;
+
+        public CollapsibleSectionViewHolder(View itemView) {
+            super(itemView);
+            headerText = itemView.findViewById(R.id.header_text);
+            expandIcon = itemView.findViewById(R.id.expand_icon);
+            contentLayout = itemView.findViewById(R.id.content_behavioral);
+            youtubeSwitch = itemView.findViewById(R.id.switch_youtube_scroll);
+            igSwitch = itemView.findViewById(R.id.switch_ig_nearend);
+
+            // Initialize SharedPreferences
+            prefs = context.getSharedPreferences("GreasePrefs", Context.MODE_PRIVATE);
+
+            // Set up header click listener for expand/collapse
+            itemView.findViewById(R.id.header_layout).setOnClickListener(v -> toggleExpansion());
+
+            // Restore saved switch states
+            youtubeSwitch.setChecked(prefs.getBoolean("enable_yt_scroll_reminder", true));
+            igSwitch.setChecked(prefs.getBoolean("enable_ig_lockout", true));
+
+            // Set up switch listeners to save changes
+            youtubeSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    prefs.edit().putBoolean("enable_yt_scroll_reminder", isChecked).apply());
+
+            igSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    prefs.edit().putBoolean("enable_ig_lockout", isChecked).apply());
+        }
+
+        private void toggleExpansion() {
+            CollapsibleSectionItem item = (CollapsibleSectionItem) items.get(getAdapterPosition());
+            item.isExpanded = !item.isExpanded;
+
+            if (item.isExpanded) {
+                contentLayout.setVisibility(View.VISIBLE);
+                expandIcon.animate().rotation(180f).setDuration(200).start();
+            } else {
+                contentLayout.setVisibility(View.GONE);
+                expandIcon.animate().rotation(0f).setDuration(200).start();
+            }
+        }
+    }
+
+    public class NotificationSettingsViewHolder extends RecyclerView.ViewHolder {
+        Button btnOpenTimePicker;
+
+        public NotificationSettingsViewHolder(View itemView) {
+            super(itemView);
+            btnOpenTimePicker = itemView.findViewById(R.id.btn_open_time_picker);
+        }
+
+        public void bind(Context context, SharedPreferences prefs,TextView summaryText) {
+            btnOpenTimePicker.setOnClickListener(v -> {
+                View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_time_picker, null);
+
+                // Get pickers
+                NumberPicker hourPicker = dialogView.findViewById(R.id.hour_picker);
+                NumberPicker minutePicker = dialogView.findViewById(R.id.minute_picker);
+                NumberPicker breakHourPicker = dialogView.findViewById(R.id.break_reminder_hour_picker);
+                NumberPicker breakMinutePicker = dialogView.findViewById(R.id.break_reminder_minute_picker);
+                NumberPicker lockoutHourPicker = dialogView.findViewById(R.id.lockout_hour_picker);
+                NumberPicker lockoutMinutePicker = dialogView.findViewById(R.id.lockout_minute_picker);
+
+                // Setup picker ranges and current values
+                hourPicker.setMinValue(0); hourPicker.setMaxValue(23);
+                minutePicker.setMinValue(0); minutePicker.setMaxValue(59);
+                int notificationDelay = prefs.getInt("notification_delay", 60);
+                hourPicker.setValue(notificationDelay / 60);
+                minutePicker.setValue(notificationDelay % 60);
+
+                breakHourPicker.setMinValue(0); breakHourPicker.setMaxValue(3);
+                breakMinutePicker.setMinValue(0); breakMinutePicker.setMaxValue(59);
+                int breakDelay = prefs.getInt("break_reminder_delay", 30);
+                breakHourPicker.setValue(breakDelay / 60);
+                breakMinutePicker.setValue(breakDelay % 60);
+
+                lockoutHourPicker.setMinValue(0); lockoutHourPicker.setMaxValue(23);
+                lockoutMinutePicker.setMinValue(0); lockoutMinutePicker.setMaxValue(59);
+                int lockoutTime = prefs.getInt("lockout_time", 60);
+                lockoutHourPicker.setValue(lockoutTime / 60);
+                lockoutMinutePicker.setValue(lockoutTime % 60);
+
+                // Build and show dialog
+                AlertDialog dialog = new AlertDialog.Builder(context)
+                        .setView(dialogView)
+                        .create();
+
+                Button okBtn = dialogView.findViewById(R.id.ok_button);
+                Button cancelBtn = dialogView.findViewById(R.id.cancel_button);
+
+                okBtn.setOnClickListener(btn -> {
+                    try {
+                        int delay = hourPicker.getValue() * 60 + minutePicker.getValue();
+                        int breakDelayMins = breakHourPicker.getValue() * 60 + breakMinutePicker.getValue();
+                        int lockout = lockoutHourPicker.getValue() * 60 + lockoutMinutePicker.getValue();
+
+                        prefs.edit()
+                                .putInt("notification_delay", delay)
+                                .putInt("break_reminder_delay", breakDelayMins)
+                                .putInt("lockout_time", lockout)
+                                .apply();
+
+                        // ✅ Update passed reference directly
+                        summaryText.setText(String.format(
+                                "Current Settings:\n• Notification Delay: %dh %dm\n• Break Reminder: %dh %dm\n• Lockout Time: %dh %dm",
+                                delay / 60, delay % 60,
+                                breakDelayMins / 60, breakDelayMins % 60,
+                                lockout / 60, lockout % 60
+                        ));
+
+                        dialog.dismiss();
+                    } catch (Exception e) {
+                        Log.e("SettingsDialog", "Failed to save or update settings", e);
+                    }
+                });
+
+
+                cancelBtn.setOnClickListener(btn -> dialog.dismiss());
+
+                dialog.show();
+            });
+        }
+
+
+
+
+    }
+
+
+
     public void setRules(List<FilterRule> rules) {
         // Create a map of existing rules by their hash code for state preservation
         Map<Integer, Boolean> existingStates = new HashMap<>();
@@ -77,6 +240,12 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         // Add service header
         items.add(new ServiceHeaderItem());
+
+        //add behavioural & timer section
+        items.add(new CollapsibleSectionItem("Behavioral Controls"));
+        items.add(new NotificationSettingsItem());
+
+        
 
         // Group rules by package name
         Map<String, List<FilterRule>> rulesByPackage = new HashMap<>();
@@ -107,12 +276,17 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     @Override
+
     public int getItemViewType(int position) {
         Object item = items.get(position);
         if (item instanceof ServiceHeaderItem) return TYPE_SERVICE_HEADER;
         if (item instanceof AppHeaderItem) return TYPE_APP_HEADER;
+        if (item instanceof RuleItem) return TYPE_RULE;
+        if (item instanceof CollapsibleSectionItem) return TYPE_COLLAPSIBLE_SECTION;
+        if (item instanceof NotificationSettingsItem) return TYPE_NOTIFICATION_SETTINGS;
         return TYPE_RULE;
     }
+
 
     @NonNull
     @Override
@@ -123,10 +297,17 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return new ServiceHeaderViewHolder(inflater.inflate(R.layout.item_service_header, parent, false));
             case TYPE_APP_HEADER:
                 return new AppHeaderViewHolder(inflater.inflate(R.layout.item_app_group, parent, false));
+            case TYPE_COLLAPSIBLE_SECTION:
+                return new CollapsibleSectionViewHolder(inflater.inflate(R.layout.item_behaviour_list_collapsible, parent, false));
+            case TYPE_NOTIFICATION_SETTINGS:
+                return new NotificationSettingsViewHolder(inflater.inflate(R.layout.item_notification_settings, parent, false));
             default:
                 return new RuleViewHolder(inflater.inflate(R.layout.item_rule, parent, false));
         }
     }
+
+
+
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -210,59 +391,89 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     service.updateRules();
                 }
             });
-        } else if (holder instanceof RuleViewHolder && item instanceof RuleItem) {
-            RuleViewHolder viewHolder = (RuleViewHolder) holder;
-            RuleItem ruleItem = (RuleItem) item;
-            FilterRule rule = ruleItem.rule;
-
-            // Store the position in the ViewHolder
-            viewHolder.position = position;
-
-            viewHolder.ruleDescription.setText(rule.description);
-
-            // Build details string
-            StringBuilder details = new StringBuilder();
-            if (rule.targetViewId != null && !rule.targetViewId.isEmpty()) {
-                details.append("View ID: ").append(rule.targetViewId);
-            }
-            if (!rule.contentDescriptions.isEmpty()) {
-                if (details.length() > 0) {
-                    details.append("\n");
-                }
-                details.append("Description: ").append(String.join(", ", rule.contentDescriptions));
-            }
-            viewHolder.ruleDetails.setText(details.toString());
-
-            // Check if the package is disabled
-            boolean isPackageDisabled = config.isPackageDisabled(rule.packageName);
             
-            // Remove any existing listener to prevent duplicate callbacks
-            viewHolder.ruleSwitch.setOnCheckedChangeListener(null);
-            // Set the current state
-            viewHolder.ruleSwitch.setChecked(rule.enabled);
-            // Disable the switch if the package is disabled
-            viewHolder.ruleSwitch.setEnabled(!isPackageDisabled);
-            // Add the listener back
-            viewHolder.ruleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Verify we're still bound to the same position
-                if (viewHolder.position == position) {
-                    if (rule.enabled != isChecked) {  // Only update if the state actually changed
-                        rule.enabled = isChecked;
-                        config.setRuleEnabled(rule, isChecked);
+        }else if (holder instanceof NotificationSettingsViewHolder && item instanceof NotificationSettingsItem) {
+            NotificationSettingsViewHolder viewHolder = (NotificationSettingsViewHolder) holder;
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-                        // Notify the service to update its rules
-                        DistractionControlService service = DistractionControlService.getInstance();
-                        if (service != null) {
-                            service.updateRules();
-                        }
+            // Find the summary text and update it
+            TextView summaryText = viewHolder.itemView.findViewById(R.id.summary_text);
 
-                        if (onRuleStateChangedListener != null) {
-                            onRuleStateChangedListener.onRuleStateChanged(rule);
+            int delayMins = prefs.getInt("notification_delay", 60);
+            int breakMins = prefs.getInt("break_reminder_delay", 30);
+            int lockoutMins = prefs.getInt("lockout_time", 60);
+
+            String summary = String.format(
+                    "Current Settings:\n• Notification Delay: %dh %dm\n• Break Reminder: %dh %dm\n• Lockout Time: %dh %dm",
+                    delayMins / 60, delayMins % 60,
+                    breakMins / 60, breakMins % 60,
+                    lockoutMins / 60, lockoutMins % 60
+            );
+
+
+            summaryText.setText(summary);
+            viewHolder.bind(context, prefs, summaryText);
+
+
+
+        }
+
+
+
+
+        else if (holder instanceof RuleViewHolder && item instanceof RuleItem) {
+                RuleViewHolder viewHolder = (RuleViewHolder) holder;
+                RuleItem ruleItem = (RuleItem) item;
+                FilterRule rule = ruleItem.rule;
+
+                // Store the position in the ViewHolder
+                viewHolder.position = position;
+
+                viewHolder.ruleDescription.setText(rule.description);
+
+                // Build details string
+                StringBuilder details = new StringBuilder();
+                if (rule.targetViewId != null && !rule.targetViewId.isEmpty()) {
+                    details.append("View ID: ").append(rule.targetViewId);
+                }
+                if (!rule.contentDescriptions.isEmpty()) {
+                    if (details.length() > 0) {
+                        details.append("\n");
+                    }
+                    details.append("Description: ").append(String.join(", ", rule.contentDescriptions));
+                }
+                viewHolder.ruleDetails.setText(details.toString());
+
+                // Check if the package is disabled
+                boolean isPackageDisabled = config.isPackageDisabled(rule.packageName);
+                
+                // Remove any existing listener to prevent duplicate callbacks
+                viewHolder.ruleSwitch.setOnCheckedChangeListener(null);
+                // Set the current state
+                viewHolder.ruleSwitch.setChecked(rule.enabled);
+                // Disable the switch if the package is disabled
+                viewHolder.ruleSwitch.setEnabled(!isPackageDisabled);
+                // Add the listener back
+                viewHolder.ruleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    // Verify we're still bound to the same position
+                    if (viewHolder.position == position) {
+                        if (rule.enabled != isChecked) {  // Only update if the state actually changed
+                            rule.enabled = isChecked;
+                            config.setRuleEnabled(rule, isChecked);
+
+                            // Notify the service to update its rules
+                            DistractionControlService service = DistractionControlService.getInstance();
+                            if (service != null) {
+                                service.updateRules();
+                            }
+
+                            if (onRuleStateChangedListener != null) {
+                                onRuleStateChangedListener.onRuleStateChanged(rule);
+                            }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
     }
 
     @Override

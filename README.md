@@ -36,7 +36,7 @@ Rules follow a simple syntax with key-value pairs separated by `##`:
 ### Examples:
 
 ```
-# Block YouTube recommendations
+# Block YouTube recommendations 
 com.google.android.youtube##viewId=com.google.android.youtube:id/watch_list##desc=Shorts|Go to channel##colour=FFFFFF##comment=Hide next-up video recommendations
 
 # Block WhatsApp AI button
