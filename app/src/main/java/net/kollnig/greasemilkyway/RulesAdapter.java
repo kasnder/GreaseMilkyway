@@ -280,6 +280,25 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
+    /**
+     * Returns true if all rule switches are on (enabled) and not disabled by package.
+     */
+    public boolean areAllRulesEnabled() {
+        for (Object item : items) {
+            if (item instanceof RuleItem) {
+                RuleItem ruleItem = (RuleItem) item;
+                FilterRule rule = ruleItem.rule;
+                if (config.isPackageDisabled(rule.packageName)) {
+                    continue; // skip rules for disabled packages
+                }
+                if (!rule.enabled) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public interface OnRuleStateChangedListener {
         void onRuleStateChanged(FilterRule rule);
     }
