@@ -94,6 +94,9 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             String packageName = entry.getKey();
             List<FilterRule> packageRules = entry.getValue();
 
+            // Sort rules by description
+            packageRules.sort((r1, r2) -> r1.description.compareToIgnoreCase(r2.description));
+
             // Add app header
             items.add(new AppHeaderItem(packageName));
 
