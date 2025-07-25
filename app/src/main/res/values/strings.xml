@@ -16,4 +16,6 @@
     <string name="disable_all_rules_for_app">Disable all rules for this app</string>
     <string name="rule_requires_english">This rule may require English to be the main display language.</string>
     <string name="app_not_installed">App not installed</string>
+    <string name="feed_warning_message">Note for first-time users: Feed elements are not hidden by default; you can hide them manually below. Moreover, in case an overlay does not hide, then try changing apps, pressing the home button, or locking the phone.</string>
+    <string name="dismiss">Dismiss</string>
 </resources>
