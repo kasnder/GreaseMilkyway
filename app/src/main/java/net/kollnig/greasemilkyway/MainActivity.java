@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,7 +17,6 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConfig config;
     private RecyclerView rulesList;
     private RulesAdapter adapter;
-    private TextView warningMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +33,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize views
         rulesList = findViewById(R.id.rules_list);
-        warningMessage = findViewById(R.id.warning_message);
 
         // Setup RecyclerView
         rulesList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RulesAdapter(this, config);
         rulesList.setAdapter(adapter);
-
-        // Listen for rule state changes
-        adapter.setOnRuleStateChangedListener(rule -> updateWarningMessage());
 
         // Setup custom rules button
         findViewById(R.id.custom_rules_button).setOnClickListener(v -> {
@@ -54,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Load current settings
         loadSettings();
-        updateWarningMessage();
     }
 
     @Override
@@ -92,19 +84,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d("SettingsActivity", "Rule for " + rule.packageName + " with description: " + rule.description);
         }
         adapter.setRules(rules);
-        updateWarningMessage();
-    }
-
-    /**
-     * Show or hide the warning message if all rule switches are on.
-     */
-    private void updateWarningMessage() {
-        if (adapter.areAllRulesEnabled()) {
-            warningMessage.setText(R.string.warning_all_blocking_rules);
-            warningMessage.setVisibility(View.VISIBLE);
-        } else {
-            warningMessage.setVisibility(View.GONE);
-        }
     }
 
     private boolean isAccessibilityServiceEnabled() {
