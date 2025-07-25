@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GreaseMilkyway</string>
+    <string name="app_name">GMWay</string>
     <string name="accessibility_service_description">Help ADHD</string>
     <string name="enable_accessibility_service">Enable Accessibility Service</string>
-    <string name="settings_title">GreaseMilkyway</string>
     <string name="service_settings">Service Settings</string>
     <string name="enable_service">Enable Service</string>
     <string name="rules_settings">Rules</string>

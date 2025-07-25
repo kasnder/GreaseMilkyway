@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.settings_title);
+        getSupportActionBar().setTitle(R.string.app_name);
 
         // Initialize config
         config = new ServiceConfig(this);
