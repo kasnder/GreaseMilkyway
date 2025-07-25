@@ -216,9 +216,6 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             RuleItem ruleItem = (RuleItem) item;
             FilterRule rule = ruleItem.rule;
 
-            // Store the position in the ViewHolder
-            viewHolder.position = position;
-
             viewHolder.ruleDescription.setText(rule.description);
 
             // Hide ruleDetails by default
@@ -241,11 +238,15 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             viewHolder.ruleSwitch.setEnabled(!isPackageDisabled);
             // Add the listener back
             viewHolder.ruleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Verify we're still bound to the same position
-                if (viewHolder.position == position) {
-                    if (rule.enabled != isChecked) {  // Only update if the state actually changed
-                        rule.enabled = isChecked;
-                        config.setRuleEnabled(rule, isChecked);
+                int adapterPosition = viewHolder.getAdapterPosition();
+                if (adapterPosition == RecyclerView.NO_POSITION) return;
+                Object currentItem = items.get(adapterPosition);
+                if (currentItem instanceof RuleItem) {
+                    RuleItem currentRuleItem = (RuleItem) currentItem;
+                    FilterRule currentRule = currentRuleItem.rule;
+                    if (currentRule.enabled != isChecked) {  // Only update if the state actually changed
+                        currentRule.enabled = isChecked;
+                        config.setRuleEnabled(currentRule, isChecked);
 
                         // Notify the service to update its rules
                         DistractionControlService service = DistractionControlService.getInstance();
@@ -254,7 +255,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         }
 
                         if (onRuleStateChangedListener != null) {
-                            onRuleStateChangedListener.onRuleStateChanged(rule);
+                            onRuleStateChangedListener.onRuleStateChanged(currentRule);
                         }
                     }
                 }
@@ -348,7 +349,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         final TextView ruleDescription;
         final TextView ruleDetails;
         final Switch ruleSwitch;
-        int position = -1;  // Track the position this ViewHolder is bound to
+        // Removed position field
 
         RuleViewHolder(View itemView) {
             super(itemView);
