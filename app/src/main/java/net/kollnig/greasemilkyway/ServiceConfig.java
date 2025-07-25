@@ -77,8 +77,22 @@ public class ServiceConfig {
         // Apply saved enabled states
         for (FilterRule rule : rules) {
             String key = KEY_RULE_ENABLED + rule.hashCode();
-            boolean ruleEnabled = prefs.getBoolean(key, true); // Default to enabled if not set
-            
+            boolean containsFeed = false;
+            // Check description
+            if (rule.description != null && rule.description.toLowerCase().contains("feed")) {
+                containsFeed = true;
+            }
+            // Check contentDescriptions
+            if (!containsFeed && rule.contentDescriptions != null) {
+                for (String desc : rule.contentDescriptions) {
+                    if (desc != null && desc.toLowerCase().contains("feed")) {
+                        containsFeed = true;
+                        break;
+                    }
+                }
+            }
+            // Default to disabled if contains 'feed', unless explicitly enabled in prefs
+            boolean ruleEnabled = prefs.getBoolean(key, !containsFeed); // Default to false if contains 'feed', else true
             // If the package is disabled, force disable all rules for that package
             if (rule.packageName != null && isPackageDisabled(rule.packageName)) {
                 rule.enabled = false;
