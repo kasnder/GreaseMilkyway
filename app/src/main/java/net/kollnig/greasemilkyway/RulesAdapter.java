@@ -170,11 +170,12 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
                 viewHolder.appName.setText(packageManager.getApplicationLabel(appInfo));
                 viewHolder.appIcon.setImageDrawable(packageManager.getApplicationIcon(appInfo));
+                viewHolder.packageName.setText(packageName); // Always set package name
             } catch (PackageManager.NameNotFoundException e) {
-                viewHolder.appName.setText(packageName);
+                viewHolder.appName.setText(packageName); // Show package name as title
+                viewHolder.packageName.setText(context.getString(R.string.app_not_installed)); // Show 'App not installed' as subtitle
                 viewHolder.appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
-            viewHolder.packageName.setText(packageName);
 
             // Set up package switch
             viewHolder.packageSwitch.setOnCheckedChangeListener(null); // Remove any existing listener
@@ -220,18 +221,14 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             viewHolder.ruleDescription.setText(rule.description);
 
-            // Build details string
-            StringBuilder details = new StringBuilder();
-            if (rule.targetViewId != null && !rule.targetViewId.isEmpty()) {
-                details.append("View ID: ").append(rule.targetViewId);
-            }
+            // Hide ruleDetails by default
+            viewHolder.ruleDetails.setVisibility(View.GONE);
+
+            // If the rule has contentDescriptions (desc field), show the alert
             if (!rule.contentDescriptions.isEmpty()) {
-                if (details.length() > 0) {
-                    details.append("\n");
-                }
-                details.append("Description: ").append(String.join(", ", rule.contentDescriptions));
+                viewHolder.ruleDetails.setText(context.getString(R.string.rule_requires_english));
+                viewHolder.ruleDetails.setVisibility(View.VISIBLE);
             }
-            viewHolder.ruleDetails.setText(details.toString());
 
             // Check if the package is disabled
             boolean isPackageDisabled = config.isPackageDisabled(rule.packageName);
