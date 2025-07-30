@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ImageButton;
+import androidx.cardview.widget.CardView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private ServiceConfig config;
@@ -26,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
     private View feedWarningBanner;
     private ImageButton feedWarningDismiss;
     private SharedPreferences prefs;
+    private CardView clickStatsCard;
+    private TextView clickDetailsText;
+    private Button resetClicksButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,19 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Setup click statistics
+        clickStatsCard = findViewById(R.id.click_stats_card);
+        clickDetailsText = findViewById(R.id.click_details_text);
+        resetClicksButton = findViewById(R.id.reset_clicks_button);
+        
+        resetClicksButton.setOnClickListener(v -> {
+            DistractionControlService service = DistractionControlService.getInstance();
+            if (service != null) {
+                service.resetClickCounters();
+                updateClickStatistics();
+            }
+        });
+
         // Load current settings
         loadSettings();
     }
@@ -96,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Notify the adapter to update the service header
         adapter.notifyItemChanged(0);  // Service header is always at position 0
+        
+        // Update click statistics
+        updateClickStatistics();
     }
 
     private void loadSettings() {
@@ -146,5 +167,30 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateClickStatistics() {
+        DistractionControlService service = DistractionControlService.getInstance();
+        if (service == null) {
+            clickStatsCard.setVisibility(View.GONE);
+            return;
+        }
+
+        Map<FilterRule, Integer> clickStats = service.getClickStatistics();
+        boolean hasClicks = false;
+
+        StringBuilder details = new StringBuilder();
+        for (Map.Entry<FilterRule, Integer> entry : clickStats.entrySet()) {
+            if (entry.getValue() > 0) {
+                hasClicks = true;
+
+                FilterRule rule = entry.getKey();
+                details.append(rule.packageName).append(" - ").append(rule.description)
+                       .append(": ").append(entry.getValue()).append(" clicks\n");
+            }
+        }
+
+        clickDetailsText.setText(details.toString());
+        clickStatsCard.setVisibility((hasClicks) ? View.VISIBLE : View.GONE);
     }
 } 

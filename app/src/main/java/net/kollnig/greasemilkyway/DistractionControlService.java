@@ -94,6 +94,20 @@ public class DistractionControlService extends AccessibilityService {
         Log.i(TAG, "Rules updated, now have " + rules.size() + " rule(s)");
     }
 
+    /**
+     * Get click statistics for all overlays
+     */
+    public Map<FilterRule, Integer> getClickStatistics() {
+        return overlayManager.getClickStatistics();
+    }
+
+    /**
+     * Reset click counters
+     */
+    public void resetClickCounters() {
+        overlayManager.resetClickCounters();
+    }
+
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
@@ -318,7 +332,7 @@ public class DistractionControlService extends AccessibilityService {
                 PixelFormat.TRANSLUCENT);
         lp.gravity = Gravity.TOP | Gravity.START;
 
-        overlayManager.addOverlay(blocker, lp, windowManager, ui);
+        overlayManager.addOverlay(blocker, lp, windowManager, ui, rule);
 
         List<BlockedElement> elements = blockedElements.computeIfAbsent(rule.packageName, k -> new ArrayList<>());
         elements.add(new BlockedElement(rule.targetViewId, rule.contentDescriptions, blocker, new Rect(area)));

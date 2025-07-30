@@ -2,11 +2,14 @@ package net.kollnig.greasemilkyway;
 
 import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -15,14 +18,43 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class OverlayManager {
     private static final String TAG = "OverlayManager";
     private final List<View> overlays = new CopyOnWriteArrayList<>();
+    // Clicks per rule (key: FilterRule object)
+    private final Map<FilterRule, Integer> clickCountsPerRule = new HashMap<>();
 
     public int getOverlayCount() {
         return overlays.size();
     }
 
-    public void addOverlay(View overlay, WindowManager.LayoutParams params, WindowManager windowManager, Handler ui) {
+    /**
+     * Add overlay and set up click tracking per rule.
+     * @param overlay The overlay view
+     * @param params Layout params
+     * @param windowManager Window manager
+     * @param ui Handler
+     * @param rule The rule object
+     */
+    public void addOverlay(View overlay, WindowManager.LayoutParams params, WindowManager windowManager, Handler ui, FilterRule rule) {
         ui.post(() -> {
             try {
+                // Initialize click counter for this rule if not present
+                if (!clickCountsPerRule.containsKey(rule)) {
+                    clickCountsPerRule.put(rule, 0);
+                }
+                // Store rule as tag on the overlay
+                overlay.setTag(rule);
+                // Add touch listener to track clicks per rule
+                overlay.setOnTouchListener((v, event) -> {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        Object tag = v.getTag();
+                        if (tag instanceof FilterRule) {
+                            FilterRule clickedRule = (FilterRule) tag;
+                            int currentCount = clickCountsPerRule.getOrDefault(clickedRule, 0);
+                            clickCountsPerRule.put(clickedRule, currentCount + 1);
+                            Log.d(TAG, "Overlay clicked! Rule: " + clickedRule.packageName + ", Total clicks: " + (currentCount + 1));
+                        }
+                    }
+                    return false; // Allow touch to pass through if needed
+                });
                 windowManager.addView(overlay, params);
                 overlays.add(overlay);
             } catch (Exception e) {
@@ -38,6 +70,7 @@ public class OverlayManager {
                     windowManager.removeView(overlay);
                 }
                 overlays.remove(overlay);
+                // No need to remove click count here; rules may have multiple overlays
             } catch (Exception e) {
                 Log.e(TAG, "Error removing overlay", e);
             }
@@ -60,7 +93,6 @@ public class OverlayManager {
 
     public void forceClearOverlays(WindowManager windowManager) {
         if (overlays.isEmpty()) return;
-
         for (View v : new ArrayList<>(overlays)) {
             try {
                 if (v.getParent() != null) {
@@ -71,5 +103,19 @@ public class OverlayManager {
             }
             overlays.remove(v);
         }
+    }
+
+    /**
+     * Get click statistics for all rules (key: FilterRule object, value: count)
+     */
+    public Map<FilterRule, Integer> getClickStatistics() {
+        return new HashMap<>(clickCountsPerRule);
+    }
+
+    /**
+     * Reset click counters for all rules
+     */
+    public void resetClickCounters() {
+        clickCountsPerRule.clear();
     }
 } 
