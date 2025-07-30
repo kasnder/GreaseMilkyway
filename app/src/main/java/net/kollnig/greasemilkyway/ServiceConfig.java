@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manages configuration for the LayoutDumpAccessibilityService.
@@ -19,6 +21,7 @@ public class ServiceConfig {
     public static final String KEY_RULE_ENABLED = "rule_enabled_";
     private static final String KEY_CUSTOM_RULES = "custom_rules";
     private static final String KEY_PACKAGE_DISABLED = "package_disabled_";
+    private static final String KEY_CLICK_COUNT = "click_count_";
     private static final String DEFAULT_RULES_FILE = "distraction_rules.txt";
 
     private final SharedPreferences prefs;
@@ -48,6 +51,36 @@ public class ServiceConfig {
     public boolean isPackageDisabled(String packageName) {
         String key = KEY_PACKAGE_DISABLED + packageName;
         return prefs.getBoolean(key, false);
+    }
+
+    /**
+     * Get click count for a specific rule
+     */
+    public int getClickCount(FilterRule rule) {
+        String key = KEY_CLICK_COUNT + rule.hashCode();
+        return prefs.getInt(key, 0);
+    }
+
+    /**
+     * Save click count for a specific rule
+     */
+    public void saveClickCount(FilterRule rule, int count) {
+        String key = KEY_CLICK_COUNT + rule.hashCode();
+        prefs.edit().putInt(key, count).apply();
+    }
+
+    /**
+     * Reset all click counters
+     */
+    public void resetClickCounters() {
+        SharedPreferences.Editor editor = prefs.edit();
+        Map<String, ?> allPrefs = prefs.getAll();
+        for (String key : allPrefs.keySet()) {
+            if (key.startsWith(KEY_CLICK_COUNT)) {
+                editor.remove(key);
+            }
+        }
+        editor.apply();
     }
 
     public List<FilterRule> getRules() {

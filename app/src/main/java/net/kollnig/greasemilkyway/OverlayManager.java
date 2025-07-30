@@ -17,9 +17,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class OverlayManager {
     private static final String TAG = "OverlayManager";
+    
     private final List<View> overlays = new CopyOnWriteArrayList<>();
     // Clicks per rule (key: FilterRule object)
     private final Map<FilterRule, Integer> clickCountsPerRule = new HashMap<>();
+    private final ServiceConfig config;
+
+    public OverlayManager(ServiceConfig config, List<FilterRule> rules) {
+        this.config = config;
+        this.loadClickCountsForRules(rules);
+    }
 
     public int getOverlayCount() {
         return overlays.size();
@@ -38,7 +45,9 @@ public class OverlayManager {
             try {
                 // Initialize click counter for this rule if not present
                 if (!clickCountsPerRule.containsKey(rule)) {
-                    clickCountsPerRule.put(rule, 0);
+                    // Load from preferences first, then initialize to 0 if not found
+                    int savedCount = config.getClickCount(rule);
+                    clickCountsPerRule.put(rule, savedCount);
                 }
                 // Store rule as tag on the overlay
                 overlay.setTag(rule);
@@ -49,8 +58,11 @@ public class OverlayManager {
                         if (tag instanceof FilterRule) {
                             FilterRule clickedRule = (FilterRule) tag;
                             int currentCount = clickCountsPerRule.getOrDefault(clickedRule, 0);
-                            clickCountsPerRule.put(clickedRule, currentCount + 1);
-                            Log.d(TAG, "Overlay clicked! Rule: " + clickedRule.packageName + ", Total clicks: " + (currentCount + 1));
+                            int newCount = currentCount + 1;
+                            clickCountsPerRule.put(clickedRule, newCount);
+                            // Save to preferences immediately
+                            config.saveClickCount(clickedRule, newCount);
+                            Log.d(TAG, "Overlay clicked! Rule: " + clickedRule.packageName + ", Total clicks: " + newCount);
                         }
                     }
                     return false; // Allow touch to pass through if needed
@@ -113,9 +125,26 @@ public class OverlayManager {
     }
 
     /**
+     * Load click counts for a list of rules
+     * This should be called when rules are loaded to restore click counts
+     */
+    public void loadClickCountsForRules(List<FilterRule> rules) {
+        for (FilterRule rule : rules) {
+            if (!clickCountsPerRule.containsKey(rule)) {
+                int savedCount = config.getClickCount(rule);
+                if (savedCount > 0) {
+                    clickCountsPerRule.put(rule, savedCount);
+                    Log.d(TAG, "Loaded click count for rule " + rule.packageName + ": " + savedCount);
+                }
+            }
+        }
+    }
+
+    /**
      * Reset click counters for all rules
      */
     public void resetClickCounters() {
         clickCountsPerRule.clear();
+        config.resetClickCounters();
     }
 } 

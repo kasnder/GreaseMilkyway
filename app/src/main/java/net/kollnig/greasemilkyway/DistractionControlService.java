@@ -34,8 +34,7 @@ public class DistractionControlService extends AccessibilityService {
     private static DistractionControlService instance;
     private final List<FilterRule> rules = new ArrayList<>();
     private final Handler ui = new Handler(Looper.getMainLooper());
-    private final OverlayManager overlayManager = new OverlayManager();
-    private final Map<View, Rect> overlayBounds = new HashMap<>();
+    private OverlayManager overlayManager;
     private final Map<String, List<BlockedElement>> blockedElements = new HashMap<>();
     private WindowManager windowManager;
     private final Runnable processEvent = () -> {
@@ -89,6 +88,7 @@ public class DistractionControlService extends AccessibilityService {
         if (instance == null) return;
         rules.clear();
         rules.addAll(config.getRules());
+        overlayManager.loadClickCountsForRules(rules);
         overlayManager.clearOverlays(windowManager, ui);
         blockedElements.clear();
         Log.i(TAG, "Rules updated, now have " + rules.size() + " rule(s)");
@@ -121,6 +121,7 @@ public class DistractionControlService extends AccessibilityService {
             config = new ServiceConfig(this);
             rules.clear();
             rules.addAll(config.getRules());
+            overlayManager = new OverlayManager(config, rules);
             configureAccessibilityService();
             Log.i(TAG, "Accessibility service initialized with " + rules.size() + " rule(s)");
 
