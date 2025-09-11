@@ -10,8 +10,8 @@ android {
         applicationId "net.kollnig.greasemilkyway"
         minSdk 24
         targetSdk 36
-        versionCode 25072503
-        versionName "0.7.1"
+        versionCode 25091201
+        versionName "0.7.2"
     }
 
     buildTypes {
