@@ -7,4 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Warning banner colors for light theme -->
+    <color name="warning_background_light">#FFFFE0B2</color>
+    <color name="warning_text_light">#FF8D4E00</color>
 </resources>

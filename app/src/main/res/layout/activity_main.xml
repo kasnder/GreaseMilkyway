@@ -26,7 +26,7 @@
             android:orientation="horizontal"
             android:padding="12dp"
             android:gravity="center_vertical"
-            android:background="@android:color/holo_orange_light"
+            android:background="@color/warning_background_light"
             android:visibility="gone">
 
             <TextView
@@ -35,6 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/feed_warning_message"
+                android:textColor="@color/warning_text_light"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
             <ImageButton
