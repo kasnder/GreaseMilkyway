@@ -3,8 +3,7 @@
     <string name="app_name">ReDD Focus Android</string>
     <string name="accessibility_service_description">ReDD Focus - Help ADHD</string>
     <string name="enable_accessibility_service">Enable Accessibility Service</string>
-    <string name="service_settings">Service Settings</string>
-    <string name="enable_service">Enable Service</string>
+    <string name="enable_service">Enable ReDD Focus Android</string>
     <string name="rules_settings">Rules</string>
     <string name="enable_service_first">Please enable the accessibility service first</string>
     <string name="custom_rules_title">Custom Rules (Expert Mode)</string>

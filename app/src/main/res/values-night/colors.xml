@@ -18,6 +18,7 @@
     <!-- Background Colors - Dark gray, easier on eyes than pure black -->
     <color name="white">#121826</color>
     <color name="background_main">#121826</color>
+    <color name="service_header_bg">#1E2A3A</color>  <!-- Dark blue-grey for service section -->
     
     <!-- Accent Colors - Slightly brighter in dark mode -->
     <color name="accent_green">#34D399</color>

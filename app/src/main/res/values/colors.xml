@@ -18,6 +18,7 @@
     <!-- Background Colors -->
     <color name="white">#FFFFFFFF</color>
     <color name="background_main">#FFFFFFFF</color>
+    <color name="service_header_bg">#F1F5F9</color>  <!-- Subtle grey-blue for service section -->
     
     <!-- Accent Colors -->
     <color name="accent_green">#10B981</color>

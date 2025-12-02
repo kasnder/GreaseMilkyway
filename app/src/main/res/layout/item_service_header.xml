@@ -3,19 +3,40 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_marginStart="-16dp"
+    android:layout_marginEnd="-16dp"
+    android:layout_marginTop="-16dp"
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp"
+    android:paddingTop="18dp"
+    android:paddingBottom="18dp"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:background="@color/service_header_bg">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="@string/service_settings"
-        android:textAppearance="?attr/textAppearanceHeadline6" />
-
-    <Switch
-        android:id="@+id/service_enabled"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/enable_service" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/enable_service"
+            android:textSize="16sp"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <Switch
+            android:id="@+id/service_enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleX="1.2"
+            android:scaleY="1.2" />
+
+    </LinearLayout>
 
 </LinearLayout> 
