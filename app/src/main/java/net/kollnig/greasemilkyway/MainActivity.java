@@ -44,22 +44,22 @@ public class MainActivity extends AppCompatActivity {
         config = new ServiceConfig(this);
         prefs = config.getPrefs();
 
-        // Setup feed warning banner
-        feedWarningBanner = findViewById(R.id.feed_warning_banner);
-        feedWarningDismiss = findViewById(R.id.feed_warning_dismiss);
-        feedWarningDismiss.setOnClickListener(v -> {
-            feedWarningBanner.setVisibility(View.GONE);
-            prefs.edit().putBoolean(FEED_WARNING_DISMISSED_KEY, true).apply();
-        });
-        updateFeedWarningBanner();
-
         // Initialize views
         rulesList = findViewById(R.id.rules_list);
+        feedWarningBanner = findViewById(R.id.feed_warning_banner);
+        feedWarningDismiss = findViewById(R.id.feed_warning_dismiss);
 
         // Setup RecyclerView
         rulesList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RulesAdapter(this, config);
         rulesList.setAdapter(adapter);
+        
+        // Setup feed warning banner
+        feedWarningDismiss.setOnClickListener(v -> {
+            feedWarningBanner.setVisibility(View.GONE);
+            prefs.edit().putBoolean(FEED_WARNING_DISMISSED_KEY, true).apply();
+        });
+        updateFeedWarningBanner();
 
         // Setup custom rules button
         findViewById(R.id.custom_rules_button).setOnClickListener(v -> {
@@ -140,6 +140,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             feedWarningBanner.setVisibility(View.GONE);
         }
+        
+        // Update adapter to grey out items when service disabled
+        adapter.refreshServiceState();
     }
 
     @Override

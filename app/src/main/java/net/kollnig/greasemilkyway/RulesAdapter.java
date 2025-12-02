@@ -30,6 +30,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private final PackageManager packageManager;
     private final List<Object> items = new ArrayList<>();
     private OnRuleStateChangedListener onRuleStateChangedListener;
+    private boolean serviceEnabled = false;
 
     public RulesAdapter(Context context, ServiceConfig config) {
         this.context = context;
@@ -167,6 +168,10 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         } else if (holder instanceof AppHeaderViewHolder && item instanceof AppHeaderItem) {
             AppHeaderViewHolder viewHolder = (AppHeaderViewHolder) holder;
             AppHeaderItem appItem = (AppHeaderItem) item;
+            
+            // Grey out if service is disabled
+            viewHolder.itemView.setAlpha(serviceEnabled ? 1.0f : 0.4f);
+            viewHolder.packageSwitch.setEnabled(serviceEnabled);
             String packageName = appItem.packageName;
 
             try {
@@ -218,6 +223,9 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             RuleViewHolder viewHolder = (RuleViewHolder) holder;
             RuleItem ruleItem = (RuleItem) item;
             FilterRule rule = ruleItem.rule;
+            
+            // Grey out if service is disabled
+            viewHolder.itemView.setAlpha(serviceEnabled ? 1.0f : 0.4f);
 
             viewHolder.ruleDescription.setText(rule.description);
 
@@ -237,8 +245,8 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             viewHolder.ruleSwitch.setOnCheckedChangeListener(null);
             // Set the current state
             viewHolder.ruleSwitch.setChecked(rule.enabled);
-            // Disable the switch if the package is disabled
-            viewHolder.ruleSwitch.setEnabled(!isPackageDisabled);
+            // Disable the switch if the package is disabled OR service is disabled
+            viewHolder.ruleSwitch.setEnabled(serviceEnabled && !isPackageDisabled);
             // Add the listener back
             viewHolder.ruleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 int adapterPosition = viewHolder.getAdapterPosition();
@@ -272,11 +280,17 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void refreshServiceState() {
-        // Find the service header position
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i) instanceof ServiceHeaderItem) {
-                notifyItemChanged(i);
-                break;
+        boolean newServiceEnabled = isAccessibilityServiceEnabled();
+        if (this.serviceEnabled != newServiceEnabled) {
+            this.serviceEnabled = newServiceEnabled;
+            notifyDataSetChanged(); // Refresh all items to update alpha
+        } else {
+            // Find the service header position
+            for (int i = 0; i < items.size(); i++) {
+                if (items.get(i) instanceof ServiceHeaderItem) {
+                    notifyItemChanged(i);
+                    break;
+                }
             }
         }
     }
