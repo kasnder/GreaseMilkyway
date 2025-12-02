@@ -21,7 +21,7 @@
     <color name="service_header_bg">#F1F5F9</color>  <!-- Subtle grey-blue for service section -->
     
     <!-- Accent Colors -->
-    <color name="accent_green">#10B981</color>
+    <color name="accent_green">#34C759</color>
     
     <!-- Callout/Alert Colors (for warnings, errors) -->
     <color name="callout_bg">#FEE2E2</color>

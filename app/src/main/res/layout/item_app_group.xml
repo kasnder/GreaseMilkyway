@@ -37,11 +37,16 @@
         app:layout_constraintStart_toEndOf="@id/app_icon"
         app:layout_constraintTop_toBottomOf="@id/app_name" />
 
-    <Switch
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/package_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:scaleX="0.75"
+        android:scaleY="0.75"
         android:contentDescription="@string/disable_all_rules_for_app"
+        app:useMaterialThemeColors="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

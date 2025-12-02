@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Switch;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -306,7 +306,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     static class ServiceHeaderViewHolder extends RecyclerView.ViewHolder {
-        Switch serviceEnabled;
+        MaterialSwitch serviceEnabled;
 
         ServiceHeaderViewHolder(View itemView) {
             super(itemView);
@@ -318,7 +318,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         TextView appName;
         TextView packageName;
         ImageView appIcon;
-        Switch packageSwitch;
+        MaterialSwitch packageSwitch;
 
         AppHeaderViewHolder(View itemView) {
             super(itemView);
@@ -332,7 +332,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public static class RuleViewHolder extends RecyclerView.ViewHolder {
         final TextView ruleDescription;
         final TextView ruleDetails;
-        final Switch ruleSwitch;
+        final MaterialSwitch ruleSwitch;
         // Removed position field
 
         RuleViewHolder(View itemView) {

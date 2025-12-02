@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -8,8 +9,8 @@
     android:layout_marginTop="-16dp"
     android:paddingStart="32dp"
     android:paddingEnd="32dp"
-    android:paddingTop="18dp"
-    android:paddingBottom="18dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:background="@color/service_header_bg">
@@ -30,12 +31,16 @@
             android:textSize="16sp"
             android:textColor="?android:attr/textColorPrimary" />
 
-        <Switch
+        <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/service_enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleX="1.2"
-            android:scaleY="1.2" />
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            android:scaleX="0.9"
+            android:scaleY="0.9"
+            app:thumbTint="@color/service_switch_thumb"
+            app:trackTint="@color/service_switch_track" />
 
     </LinearLayout>
 
