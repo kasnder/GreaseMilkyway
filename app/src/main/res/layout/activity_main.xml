@@ -14,9 +14,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/header_bg"
             android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:titleTextAppearance="@style/ToolbarTitleText"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         <LinearLayout
@@ -65,6 +65,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="@string/add_custom_rules"
+        app:backgroundTint="@color/header_bg"
+        app:tint="@color/primary_blue"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         app:srcCompat="@android:drawable/ic_input_add" />
 
