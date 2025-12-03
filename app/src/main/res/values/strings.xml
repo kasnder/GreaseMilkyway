@@ -20,4 +20,6 @@
     <string name="need_help">Need help?</string>
     <string name="expand_help_content">Expand help content</string>
     <string name="collapse_help_content">Collapse help content</string>
+    <string name="expand_app_rules">Expand app rules</string>
+    <string name="collapse_app_rules">Collapse app rules</string>
 </resources>

@@ -34,6 +34,8 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private final List<Object> items = new ArrayList<>();
     private OnRuleStateChangedListener onRuleStateChangedListener;
     private boolean serviceEnabled = false;
+    private final Map<String, Boolean> appExpandedStates = new HashMap<>();
+    private List<FilterRule> currentRules = new ArrayList<>();
 
     public RulesAdapter(Context context, ServiceConfig config) {
         this.context = context;
@@ -68,6 +70,11 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void setRules(List<FilterRule> rules) {
+        this.currentRules = rules;
+        rebuildItemsList();
+    }
+
+    private void rebuildItemsList() {
         // Create a map of existing rules by their hash code for state preservation
         Map<Integer, Boolean> existingStates = new HashMap<>();
         for (Object item : items) {
@@ -84,7 +91,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         // Group rules by package name
         Map<String, List<FilterRule>> rulesByPackage = new HashMap<>();
-        for (FilterRule rule : rules) {
+        for (FilterRule rule : currentRules) {
             // Preserve the enabled state from existing rules
             Boolean existingState = existingStates.get(rule.hashCode());
             if (existingState != null) {
@@ -93,7 +100,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             rulesByPackage.computeIfAbsent(rule.packageName, k -> new ArrayList<>()).add(rule);
         }
 
-        // Add items in order: app header followed by its rules
+        // Add items in order: app header followed by its rules (if expanded)
         for (Map.Entry<String, List<FilterRule>> entry : rulesByPackage.entrySet()) {
             String packageName = entry.getKey();
             List<FilterRule> packageRules = entry.getValue();
@@ -104,9 +111,12 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             // Add app header
             items.add(new AppHeaderItem(packageName));
 
-            // Add rules for this app
-            for (FilterRule rule : packageRules) {
-                items.add(new RuleItem(rule));
+            // Only add rules if this app is expanded (default: true)
+            boolean isExpanded = appExpandedStates.getOrDefault(packageName, true);
+            if (isExpanded) {
+                for (FilterRule rule : packageRules) {
+                    items.add(new RuleItem(rule));
+                }
             }
         }
 
@@ -189,6 +199,36 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             viewHolder.itemView.setAlpha(serviceEnabled ? 1.0f : 0.4f);
             viewHolder.packageSwitch.setEnabled(serviceEnabled);
             String packageName = appItem.packageName;
+            
+            // Get or initialize expanded state for this app (default: expanded)
+            boolean isExpanded = appExpandedStates.getOrDefault(packageName, true);
+            viewHolder.isExpanded = isExpanded;
+            
+            // Set chevron rotation based on state
+            viewHolder.expandChevron.setRotation(isExpanded ? 180f : 0f);
+            viewHolder.expandChevron.setContentDescription(
+                context.getString(isExpanded ? R.string.collapse_app_rules : R.string.expand_app_rules)
+            );
+            
+            // Setup chevron click handler
+            viewHolder.expandChevron.setOnClickListener(v -> {
+                viewHolder.isExpanded = !viewHolder.isExpanded;
+                appExpandedStates.put(packageName, viewHolder.isExpanded);
+                
+                // Animate chevron rotation
+                viewHolder.expandChevron.animate()
+                    .rotation(viewHolder.isExpanded ? 180f : 0f)
+                    .setDuration(200)
+                    .start();
+                
+                // Update contentDescription
+                viewHolder.expandChevron.setContentDescription(
+                    context.getString(viewHolder.isExpanded ? R.string.collapse_app_rules : R.string.expand_app_rules)
+                );
+                
+                // Rebuild items list to show/hide rules
+                rebuildItemsList();
+            });
 
             try {
                 ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
@@ -420,6 +460,8 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         TextView packageName;
         ImageView appIcon;
         MaterialSwitch packageSwitch;
+        ImageView expandChevron;
+        boolean isExpanded = true; // Default expanded
 
         AppHeaderViewHolder(View itemView) {
             super(itemView);
@@ -427,6 +469,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             packageName = itemView.findViewById(R.id.package_name);
             appIcon = itemView.findViewById(R.id.app_icon);
             packageSwitch = itemView.findViewById(R.id.package_switch);
+            expandChevron = itemView.findViewById(R.id.expand_chevron);
         }
     }
 
