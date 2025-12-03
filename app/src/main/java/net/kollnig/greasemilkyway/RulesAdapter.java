@@ -3,6 +3,7 @@ package net.kollnig.greasemilkyway;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
@@ -28,6 +29,10 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final int TYPE_APP_HEADER = 1;
     private static final int TYPE_RULE = 2;
 
+    private static final String PREFS_NAME = "AppCollapseStates";
+    private static final String KEY_FIRST_RUN = "first_run";
+    private static final String KEY_APP_EXPANDED = "app_expanded_";
+    
     private final Context context;
     private final ServiceConfig config;
     private final PackageManager packageManager;
@@ -36,11 +41,20 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private boolean serviceEnabled = false;
     private final Map<String, Boolean> appExpandedStates = new HashMap<>();
     private List<FilterRule> currentRules = new ArrayList<>();
+    private final SharedPreferences collapsePrefs;
 
     public RulesAdapter(Context context, ServiceConfig config) {
         this.context = context;
         this.config = config;
         this.packageManager = context.getPackageManager();
+        this.collapsePrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        
+        // Check if this is first run
+        if (collapsePrefs.getBoolean(KEY_FIRST_RUN, true)) {
+            // First run - mark as no longer first run
+            collapsePrefs.edit().putBoolean(KEY_FIRST_RUN, false).apply();
+            // All apps will default to collapsed (false) on first run
+        }
     }
 
     public void setOnRuleStateChangedListener(OnRuleStateChangedListener listener) {
@@ -111,8 +125,12 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             // Add app header
             items.add(new AppHeaderItem(packageName));
 
-            // Only add rules if this app is expanded (default: true)
-            boolean isExpanded = appExpandedStates.getOrDefault(packageName, true);
+            // Only add rules if this app is expanded
+            // Load from SharedPreferences, default to false (collapsed)
+            boolean isExpanded = appExpandedStates.getOrDefault(
+                packageName, 
+                collapsePrefs.getBoolean(KEY_APP_EXPANDED + packageName, false)
+            );
             if (isExpanded) {
                 for (FilterRule rule : packageRules) {
                     items.add(new RuleItem(rule));
@@ -200,9 +218,13 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             viewHolder.packageSwitch.setEnabled(serviceEnabled);
             String packageName = appItem.packageName;
             
-            // Get or initialize expanded state for this app (default: expanded)
-            boolean isExpanded = appExpandedStates.getOrDefault(packageName, true);
+            // Get or initialize expanded state for this app
+            boolean isExpanded = appExpandedStates.getOrDefault(
+                packageName,
+                collapsePrefs.getBoolean(KEY_APP_EXPANDED + packageName, false)
+            );
             viewHolder.isExpanded = isExpanded;
+            appExpandedStates.put(packageName, isExpanded);
             
             // Set chevron rotation based on state
             viewHolder.expandChevron.setRotation(isExpanded ? 180f : 0f);
@@ -214,6 +236,11 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             viewHolder.expandChevron.setOnClickListener(v -> {
                 viewHolder.isExpanded = !viewHolder.isExpanded;
                 appExpandedStates.put(packageName, viewHolder.isExpanded);
+                
+                // Save state to SharedPreferences
+                collapsePrefs.edit()
+                    .putBoolean(KEY_APP_EXPANDED + packageName, viewHolder.isExpanded)
+                    .apply();
                 
                 // Animate chevron rotation
                 viewHolder.expandChevron.animate()
