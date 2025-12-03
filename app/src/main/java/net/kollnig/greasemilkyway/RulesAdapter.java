@@ -334,11 +334,27 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             helpContent = itemView.findViewById(R.id.help_content);
             
             // Setup collapse/expand toggle
-            helpToggleButton.setOnClickListener(v -> {
-                isHelpExpanded = !isHelpExpanded;
-                helpContent.setVisibility(isHelpExpanded ? View.VISIBLE : View.GONE);
-                helpChevron.setRotation(isHelpExpanded ? 180 : 0);
-            });
+            helpToggleButton.setOnClickListener(v -> toggleHelpSection());
+        }
+
+        private void toggleHelpSection() {
+            isHelpExpanded = !isHelpExpanded;
+
+            // Instant visibility toggle
+            helpContent.setVisibility(isHelpExpanded ? View.VISIBLE : View.GONE);
+            
+            // Smooth chevron rotation
+            helpChevron.animate()
+                .rotation(isHelpExpanded ? 180f : 0f)
+                .setDuration(200)
+                .start();
+            
+            // Update contentDescription for accessibility
+            helpChevron.setContentDescription(
+                itemView.getContext().getString(
+                    isHelpExpanded ? R.string.collapse_help_content : R.string.expand_help_content
+                )
+            );
         }
     }
 

@@ -58,6 +58,7 @@
         android:background="?attr/selectableItemBackground">
 
         <TextView
+            android:id="@+id/help_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -69,8 +70,8 @@
             android:id="@+id/help_chevron"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/arrow_down_float"
-            android:rotation="0"
+            android:src="@drawable/ic_expand_more"
+            android:contentDescription="@string/expand_help_content"
             app:tint="?android:attr/textColorSecondary" />
 
     </LinearLayout>
