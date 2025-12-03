@@ -153,12 +153,13 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return;
             }
 
+            boolean isServiceEnabled = false;
             if (accessibilityEnabled == 1) {
                 String settingValue = Settings.Secure.getString(
                         context.getContentResolver(),
                         Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-                boolean isEnabled = settingValue != null && settingValue.contains(serviceName);
-                viewHolder.serviceEnabled.setChecked(isEnabled);
+                isServiceEnabled = settingValue != null && settingValue.contains(serviceName);
+                viewHolder.serviceEnabled.setChecked(isServiceEnabled);
             } else {
                 viewHolder.serviceEnabled.setChecked(false);
             }
@@ -168,6 +169,18 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             });
+            
+            // Hide "Need help?" section when service is enabled
+            if (isServiceEnabled) {
+                viewHolder.helpToggleButton.setVisibility(View.GONE);
+                viewHolder.helpContent.setVisibility(View.GONE);
+            } else {
+                viewHolder.helpToggleButton.setVisibility(View.VISIBLE);
+                // Keep help content collapsed by default when service is disabled
+                if (!viewHolder.isHelpExpanded) {
+                    viewHolder.helpContent.setVisibility(View.GONE);
+                }
+            }
         } else if (holder instanceof AppHeaderViewHolder && item instanceof AppHeaderItem) {
             AppHeaderViewHolder viewHolder = (AppHeaderViewHolder) holder;
             AppHeaderItem appItem = (AppHeaderItem) item;
