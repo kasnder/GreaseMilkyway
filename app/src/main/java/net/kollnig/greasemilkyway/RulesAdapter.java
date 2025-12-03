@@ -321,10 +321,24 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     static class ServiceHeaderViewHolder extends RecyclerView.ViewHolder {
         MaterialSwitch serviceEnabled;
+        View helpToggleButton;
+        ImageView helpChevron;
+        View helpContent;
+        boolean isHelpExpanded = false;
 
         ServiceHeaderViewHolder(View itemView) {
             super(itemView);
             serviceEnabled = itemView.findViewById(R.id.service_enabled);
+            helpToggleButton = itemView.findViewById(R.id.help_toggle_button);
+            helpChevron = itemView.findViewById(R.id.help_chevron);
+            helpContent = itemView.findViewById(R.id.help_content);
+            
+            // Setup collapse/expand toggle
+            helpToggleButton.setOnClickListener(v -> {
+                isHelpExpanded = !isHelpExpanded;
+                helpContent.setVisibility(isHelpExpanded ? View.VISIBLE : View.GONE);
+                helpChevron.setRotation(isHelpExpanded ? 180 : 0);
+            });
         }
     }
 

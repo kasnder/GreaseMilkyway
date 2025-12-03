@@ -17,4 +17,5 @@
     <string name="app_not_installed">App not installed</string>
     <string name="feed_warning_message">Note for first-time users: Feed elements are not hidden by default; you can hide them manually below. Moreover, in case an overlay does not hide, then try changing apps, pressing the home button, or locking the phone.</string>
     <string name="dismiss">Dismiss</string>
+    <string name="need_help">Need help?</string>
 </resources>
