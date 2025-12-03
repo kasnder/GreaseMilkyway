@@ -25,10 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConfig config;
     private RecyclerView rulesList;
     private RulesAdapter adapter;
-    private static final String FEED_WARNING_DISMISSED_KEY = "feed_warning_dismissed";
-    private View feedWarningBanner;
-    private ImageButton feedWarningDismiss;
-    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,24 +38,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize config
         config = new ServiceConfig(this);
-        prefs = config.getPrefs();
 
         // Initialize views
         rulesList = findViewById(R.id.rules_list);
-        feedWarningBanner = findViewById(R.id.feed_warning_banner);
-        feedWarningDismiss = findViewById(R.id.feed_warning_dismiss);
 
         // Setup RecyclerView
         rulesList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RulesAdapter(this, config);
         rulesList.setAdapter(adapter);
-        
-        // Setup feed warning banner
-        feedWarningDismiss.setOnClickListener(v -> {
-            feedWarningBanner.setVisibility(View.GONE);
-            prefs.edit().putBoolean(FEED_WARNING_DISMISSED_KEY, true).apply();
-        });
-        updateFeedWarningBanner();
 
         // Setup custom rules button
         findViewById(R.id.custom_rules_button).setOnClickListener(v -> {
@@ -74,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Update feed warning banner visibility based on service status and dismissal
-        updateFeedWarningBanner();
+        // Update adapter to grey out items when service disabled
+        adapter.refreshServiceState();
         // Check if accessibility service is enabled
         String serviceName = getPackageName() + "/" + DistractionControlService.class.getCanonicalName();
         int accessibilityEnabled = 0;
@@ -132,18 +118,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void updateFeedWarningBanner() {
-        boolean dismissed = prefs.getBoolean(FEED_WARNING_DISMISSED_KEY, false);
-        boolean serviceEnabled = isAccessibilityServiceEnabled();
-        if (!dismissed && serviceEnabled) {
-            feedWarningBanner.setVisibility(View.VISIBLE);
-        } else {
-            feedWarningBanner.setVisibility(View.GONE);
-        }
-        
-        // Update adapter to grey out items when service disabled
-        adapter.refreshServiceState();
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

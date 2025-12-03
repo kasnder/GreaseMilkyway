@@ -37,7 +37,4 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     
-    <!-- Warning banner colors for light theme (will be removed in Phase 3) -->
-    <color name="warning_background_light">#FFFFE0B2</color>
-    <color name="warning_text_light">#FF8D4E00</color>
 </resources>

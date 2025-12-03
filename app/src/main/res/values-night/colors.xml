@@ -30,8 +30,5 @@
     <!-- System Colors -->
     <color name="black">#FF000000</color>
     
-    <!-- Warning banner colors for dark theme (will be removed in Phase 3) -->
-    <color name="warning_background_light">#92400E</color>
-    <color name="warning_text_light">#FED7AA</color>
 </resources>
 

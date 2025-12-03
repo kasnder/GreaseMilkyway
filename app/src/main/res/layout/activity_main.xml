@@ -27,34 +27,6 @@
             app:titleTextAppearance="@style/ToolbarTitleText"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-        <LinearLayout
-            android:id="@+id/feed_warning_banner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:gravity="center_vertical"
-            android:background="@color/warning_background_light"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/feed_warning_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/feed_warning_message"
-                android:textColor="@color/warning_text_light"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-
-            <ImageButton
-                android:id="@+id/feed_warning_dismiss"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:contentDescription="@string/dismiss"/>
-        </LinearLayout>
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
