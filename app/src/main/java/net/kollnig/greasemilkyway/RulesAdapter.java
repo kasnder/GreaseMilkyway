@@ -1,5 +1,6 @@
 package net.kollnig.greasemilkyway;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -8,7 +9,9 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import android.widget.TextView;
 
@@ -340,13 +343,54 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         private void toggleHelpSection() {
             isHelpExpanded = !isHelpExpanded;
 
-            // Instant visibility toggle
-            helpContent.setVisibility(isHelpExpanded ? View.VISIBLE : View.GONE);
+            if (isHelpExpanded) {
+                // Expanding: measure target height first
+                helpContent.setVisibility(View.VISIBLE);
+                helpContent.measure(
+                    View.MeasureSpec.makeMeasureSpec(((View) helpContent.getParent()).getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                );
+                final int targetHeight = helpContent.getMeasuredHeight();
+
+                // Start from 0 height
+                helpContent.getLayoutParams().height = 0;
+                helpContent.setAlpha(0f);
+
+                // Animate to target height with fade in
+                ValueAnimator heightAnimator = ValueAnimator.ofInt(0, targetHeight);
+                heightAnimator.setDuration(250);
+                heightAnimator.setInterpolator(new DecelerateInterpolator());
+                heightAnimator.addUpdateListener(animation -> {
+                    helpContent.getLayoutParams().height = (int) animation.getAnimatedValue();
+                    helpContent.setAlpha(animation.getAnimatedFraction());
+                    helpContent.requestLayout();
+                });
+                heightAnimator.start();
+            } else {
+                // Collapsing: animate from current height to 0
+                final int startHeight = helpContent.getHeight();
+                ValueAnimator heightAnimator = ValueAnimator.ofInt(startHeight, 0);
+                heightAnimator.setDuration(200);
+                heightAnimator.setInterpolator(new DecelerateInterpolator());
+                heightAnimator.addUpdateListener(animation -> {
+                    helpContent.getLayoutParams().height = (int) animation.getAnimatedValue();
+                    helpContent.setAlpha(1f - animation.getAnimatedFraction());
+                    helpContent.requestLayout();
+                });
+                heightAnimator.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation) {
+                        helpContent.setVisibility(View.GONE);
+                        helpContent.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    }
+                });
+                heightAnimator.start();
+            }
             
             // Smooth chevron rotation
             helpChevron.animate()
                 .rotation(isHelpExpanded ? 180f : 0f)
-                .setDuration(200)
+                .setDuration(250)
                 .start();
             
             // Update contentDescription for accessibility
