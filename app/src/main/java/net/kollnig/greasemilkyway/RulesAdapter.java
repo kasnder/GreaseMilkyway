@@ -50,6 +50,14 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         put("com.instagram.android", "Instagram");
         put("com.linkedin.android", "LinkedIn");
     }};
+    
+    // Hardcoded app icons for known packages
+    private static final Map<String, Integer> KNOWN_APP_ICONS = new HashMap<String, Integer>() {{
+        put("com.whatsapp", R.drawable.ic_whatsapp);
+        put("com.google.android.youtube", R.drawable.ic_youtube);
+        put("com.instagram.android", R.drawable.ic_instagram);
+        put("com.linkedin.android", R.drawable.ic_linkedin);
+    }};
 
     public RulesAdapter(Context context, ServiceConfig config) {
         this.context = context;
@@ -265,17 +273,29 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 rebuildItemsList();
             });
 
-            try {
-                ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-                viewHolder.appName.setText(packageManager.getApplicationLabel(appInfo));
-                viewHolder.appIcon.setImageDrawable(packageManager.getApplicationIcon(appInfo));
-                viewHolder.packageName.setText(packageName); // Always set package name
-            } catch (PackageManager.NameNotFoundException e) {
-                // Use hardcoded name if known, otherwise show package name
-                String displayName = KNOWN_APP_NAMES.getOrDefault(packageName, packageName);
+            // Always use hardcoded name and icon if available
+            String displayName = KNOWN_APP_NAMES.get(packageName);
+            Integer iconRes = KNOWN_APP_ICONS.get(packageName);
+            
+            if (displayName != null) {
+                // Known app - use hardcoded name and icon
                 viewHolder.appName.setText(displayName);
-                viewHolder.packageName.setText(context.getString(R.string.app_not_installed));
-                viewHolder.appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+                if (iconRes != null) {
+                    viewHolder.appIcon.setImageResource(iconRes);
+                }
+                viewHolder.packageName.setText(packageName);
+            } else {
+                // Unknown app - try to get from PackageManager
+                try {
+                    ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+                    viewHolder.appName.setText(packageManager.getApplicationLabel(appInfo));
+                    viewHolder.appIcon.setImageDrawable(packageManager.getApplicationIcon(appInfo));
+                    viewHolder.packageName.setText(packageName);
+                } catch (PackageManager.NameNotFoundException e) {
+                    viewHolder.appName.setText(packageName);
+                    viewHolder.packageName.setText(context.getString(R.string.app_not_installed));
+                    viewHolder.appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+                }
             }
 
             // Set up package switch
