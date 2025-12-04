@@ -43,6 +43,14 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private List<FilterRule> currentRules = new ArrayList<>();
     private final SharedPreferences collapsePrefs;
 
+    // Hardcoded app names for known packages
+    private static final Map<String, String> KNOWN_APP_NAMES = new HashMap<String, String>() {{
+        put("com.whatsapp", "WhatsApp");
+        put("com.google.android.youtube", "YouTube");
+        put("com.instagram.android", "Instagram");
+        put("com.linkedin.android", "LinkedIn");
+    }};
+
     public RulesAdapter(Context context, ServiceConfig config) {
         this.context = context;
         this.config = config;
@@ -263,8 +271,10 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 viewHolder.appIcon.setImageDrawable(packageManager.getApplicationIcon(appInfo));
                 viewHolder.packageName.setText(packageName); // Always set package name
             } catch (PackageManager.NameNotFoundException e) {
-                viewHolder.appName.setText(packageName); // Show package name as title
-                viewHolder.packageName.setText(context.getString(R.string.app_not_installed)); // Show 'App not installed' as subtitle
+                // Use hardcoded name if known, otherwise show package name
+                String displayName = KNOWN_APP_NAMES.getOrDefault(packageName, packageName);
+                viewHolder.appName.setText(displayName);
+                viewHolder.packageName.setText(context.getString(R.string.app_not_installed));
                 viewHolder.appIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
 
