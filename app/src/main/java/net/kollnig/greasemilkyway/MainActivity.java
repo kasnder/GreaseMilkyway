@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             public void updateDrawState(android.text.TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setUnderlineText(false); // Remove underline for cleaner look
+                ds.setColor(getResources().getColor(R.color.link_color, getTheme())); // Use accessible link color
             }
         };
         spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

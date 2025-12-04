@@ -14,6 +14,7 @@
     <!-- Text Colors -->
     <color name="text_dark">#111827</color>
     <color name="text_light">#6B7280</color>
+    <color name="link_color">#1E40AF</color>
     
     <!-- Background Colors -->
     <color name="white">#FFFFFFFF</color>
