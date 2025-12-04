@@ -314,6 +314,8 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     }
                 }
                 
+                // Note: When disabling app, we don't change rule states
+                
                 // When disabling a package, we don't change individual rule states
                 // When enabling a package, we restore the individual rule states
                 if (isChecked) {
@@ -383,6 +385,24 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     if (currentRule.enabled != isChecked) {  // Only update if the state actually changed
                         currentRule.enabled = isChecked;
                         config.setRuleEnabled(currentRule, isChecked);
+
+                        // If disabling a rule, check if it's the last enabled rule for this app
+                        if (!isChecked) {
+                            boolean anyRulesStillEnabled = false;
+                            for (FilterRule r : currentRules) {
+                                if (r.packageName.equals(currentRule.packageName) && r.enabled) {
+                                    anyRulesStillEnabled = true;
+                                    break;
+                                }
+                            }
+                            
+                            // If no rules are enabled for this app, disable the app entirely
+                            if (!anyRulesStillEnabled) {
+                                config.setPackageDisabled(currentRule.packageName, true);
+                                // Rebuild to update the package switch UI
+                                rebuildItemsList();
+                            }
+                        }
 
                         // Notify the service to update its rules
                         DistractionControlService service = DistractionControlService.getInstance();
