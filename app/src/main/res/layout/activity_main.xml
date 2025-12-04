@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/background_main"
-        android:paddingTop="16dp"
+        android:paddingTop="24dp"
         android:paddingBottom="0dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
