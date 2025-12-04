@@ -1,8 +1,15 @@
 package net.kollnig.greasemilkyway;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.MenuItem;
 import android.content.SharedPreferences;
@@ -10,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ImageButton;
+import android.graphics.Typeface;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -55,6 +63,44 @@ public class MainActivity extends AppCompatActivity {
 
         // Load current settings
         loadSettings();
+        
+        // Setup footer with clickable link
+        setupFooter();
+    }
+
+    private void setupFooter() {
+        TextView footerText = findViewById(R.id.footer_text);
+        
+        String fullText = "Made with ❤️ by reddfocus.org";
+        SpannableString spannableString = new SpannableString(fullText);
+        
+        // Find the position of "reddfocus.org"
+        int start = fullText.indexOf("reddfocus.org");
+        int end = start + "reddfocus.org".length();
+        
+        // Make "reddfocus.org" italic
+        spannableString.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        
+        // Make "reddfocus.org" clickable
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                // Open in external browser
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://reddfocus.org"));
+                startActivity(browserIntent);
+            }
+            
+            @Override
+            public void updateDrawState(android.text.TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false); // Remove underline for cleaner look
+            }
+        };
+        spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        
+        footerText.setText(spannableString);
+        footerText.setMovementMethod(LinkMovementMethod.getInstance());
+        footerText.setHighlightColor(android.graphics.Color.TRANSPARENT); // No ripple/highlight
     }
 
     @Override
