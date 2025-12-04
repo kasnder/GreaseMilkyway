@@ -292,6 +292,28 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     );
                 }
                 
+                // When enabling app, if all rules are currently disabled, enable them all
+                if (isChecked) {
+                    // Check if all rules for this app are currently disabled
+                    boolean allRulesDisabled = true;
+                    for (FilterRule rule : currentRules) {
+                        if (rule.packageName.equals(packageName) && rule.enabled) {
+                            allRulesDisabled = false;
+                            break;
+                        }
+                    }
+                    
+                    // If all rules were off, turn them all on
+                    if (allRulesDisabled) {
+                        for (FilterRule rule : currentRules) {
+                            if (rule.packageName.equals(packageName)) {
+                                rule.enabled = true;
+                                config.setRuleEnabled(rule, true);
+                            }
+                        }
+                    }
+                }
+                
                 // When disabling a package, we don't change individual rule states
                 // When enabling a package, we restore the individual rule states
                 if (isChecked) {
