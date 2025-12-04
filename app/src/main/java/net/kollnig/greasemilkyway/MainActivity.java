@@ -74,34 +74,29 @@ public class MainActivity extends AppCompatActivity {
         String fullText = "Made with ❤️ by reddfocus.org";
         SpannableString spannableString = new SpannableString(fullText);
         
-        // Find the position of "reddfocus.org"
         int start = fullText.indexOf("reddfocus.org");
         int end = start + "reddfocus.org".length();
         
-        // Make "reddfocus.org" italic
-        spannableString.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        
-        // Make "reddfocus.org" clickable
+        // Make "reddfocus.org" clickable (no special styling)
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                // Open in external browser
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://reddfocus.org"));
                 startActivity(browserIntent);
             }
             
             @Override
             public void updateDrawState(android.text.TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setUnderlineText(false); // Remove underline for cleaner look
-                ds.setColor(getResources().getColor(R.color.link_color, getTheme())); // Use accessible link color
+                // Keep default text color, no underline
+                ds.setUnderlineText(false);
+                ds.setColor(footerText.getCurrentTextColor());
             }
         };
         spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         
         footerText.setText(spannableString);
         footerText.setMovementMethod(LinkMovementMethod.getInstance());
-        footerText.setHighlightColor(android.graphics.Color.TRANSPARENT); // No ripple/highlight
+        footerText.setHighlightColor(android.graphics.Color.TRANSPARENT);
     }
 
     @Override
