@@ -274,6 +274,24 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             viewHolder.packageSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 config.setPackageDisabled(packageName, !isChecked); // Invert the switch state for disabled state
                 
+                // When enabling a collapsed app, force expand to show rules
+                if (isChecked && !viewHolder.isExpanded) {
+                    viewHolder.isExpanded = true;
+                    appExpandedStates.put(packageName, true);
+                    collapsePrefs.edit()
+                        .putBoolean(KEY_APP_EXPANDED + packageName, true)
+                        .apply();
+                    
+                    // Animate chevron to expanded state
+                    viewHolder.expandChevron.animate()
+                        .rotation(180f)
+                        .setDuration(200)
+                        .start();
+                    viewHolder.expandChevron.setContentDescription(
+                        context.getString(R.string.collapse_app_rules)
+                    );
+                }
+                
                 // When disabling a package, we don't change individual rule states
                 // When enabling a package, we restore the individual rule states
                 if (isChecked) {
@@ -294,7 +312,9 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         }
                     }
                 }
-                notifyDataSetChanged();
+                
+                // Rebuild items list to show/hide expanded rules
+                rebuildItemsList();
 
                 // Notify the service to update its rules
                 DistractionControlService service = DistractionControlService.getInstance();
