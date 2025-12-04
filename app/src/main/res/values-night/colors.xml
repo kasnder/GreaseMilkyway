@@ -14,7 +14,6 @@
     <!-- Text Colors - Inverted for dark mode -->
     <color name="text_dark">#F5F5F5</color>
     <color name="text_light">#D1D5DB</color>
-    <color name="link_color">#93C5FD</color>
     
     <!-- Background Colors - Dark gray, easier on eyes than pure black -->
     <color name="white">#121826</color>
