@@ -273,17 +273,26 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 rebuildItemsList();
             });
 
-            // Always use hardcoded name and icon if available
+            // Check if this is a known app
             String displayName = KNOWN_APP_NAMES.get(packageName);
             Integer iconRes = KNOWN_APP_ICONS.get(packageName);
             
-            if (displayName != null) {
+            // Try to get app info to check if installed
+            boolean isInstalled = false;
+            try {
+                ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+                isInstalled = true;
+            } catch (PackageManager.NameNotFoundException e) {
+                isInstalled = false;
+            }
+            
+            // Set name and icon
+            if (displayName != null && iconRes != null) {
                 // Known app - use hardcoded name and icon
                 viewHolder.appName.setText(displayName);
-                if (iconRes != null) {
-                    viewHolder.appIcon.setImageResource(iconRes);
-                }
-                viewHolder.packageName.setText(packageName);
+                viewHolder.appIcon.setImageResource(iconRes);
+                // Show package name if installed, "App not installed" if not
+                viewHolder.packageName.setText(isInstalled ? packageName : context.getString(R.string.app_not_installed));
             } else {
                 // Unknown app - try to get from PackageManager
                 try {
