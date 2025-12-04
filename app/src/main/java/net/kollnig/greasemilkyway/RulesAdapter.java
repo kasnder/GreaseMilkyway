@@ -274,22 +274,42 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             viewHolder.packageSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 config.setPackageDisabled(packageName, !isChecked); // Invert the switch state for disabled state
                 
-                // When enabling a collapsed app, force expand to show rules
-                if (isChecked && !viewHolder.isExpanded) {
-                    viewHolder.isExpanded = true;
-                    appExpandedStates.put(packageName, true);
-                    collapsePrefs.edit()
-                        .putBoolean(KEY_APP_EXPANDED + packageName, true)
-                        .apply();
-                    
-                    // Animate chevron to expanded state
-                    viewHolder.expandChevron.animate()
-                        .rotation(180f)
-                        .setDuration(200)
-                        .start();
-                    viewHolder.expandChevron.setContentDescription(
-                        context.getString(R.string.collapse_app_rules)
-                    );
+                if (isChecked) {
+                    // When enabling a collapsed app, force expand to show rules
+                    if (!viewHolder.isExpanded) {
+                        viewHolder.isExpanded = true;
+                        appExpandedStates.put(packageName, true);
+                        collapsePrefs.edit()
+                            .putBoolean(KEY_APP_EXPANDED + packageName, true)
+                            .apply();
+                        
+                        // Animate chevron to expanded state
+                        viewHolder.expandChevron.animate()
+                            .rotation(180f)
+                            .setDuration(200)
+                            .start();
+                        viewHolder.expandChevron.setContentDescription(
+                            context.getString(R.string.collapse_app_rules)
+                        );
+                    }
+                } else {
+                    // When disabling app, force collapse to hide rules
+                    if (viewHolder.isExpanded) {
+                        viewHolder.isExpanded = false;
+                        appExpandedStates.put(packageName, false);
+                        collapsePrefs.edit()
+                            .putBoolean(KEY_APP_EXPANDED + packageName, false)
+                            .apply();
+                        
+                        // Animate chevron to collapsed state
+                        viewHolder.expandChevron.animate()
+                            .rotation(0f)
+                            .setDuration(200)
+                            .start();
+                        viewHolder.expandChevron.setContentDescription(
+                            context.getString(R.string.expand_app_rules)
+                        );
+                    }
                 }
                 
                 // When enabling app, if all rules are currently disabled, enable them all
@@ -396,10 +416,17 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                                 }
                             }
                             
-                            // If no rules are enabled for this app, disable the app entirely
+                            // If no rules are enabled for this app, disable the app entirely and collapse
                             if (!anyRulesStillEnabled) {
                                 config.setPackageDisabled(currentRule.packageName, true);
-                                // Rebuild to update the package switch UI
+                                
+                                // Collapse the app
+                                appExpandedStates.put(currentRule.packageName, false);
+                                collapsePrefs.edit()
+                                    .putBoolean(KEY_APP_EXPANDED + currentRule.packageName, false)
+                                    .apply();
+                                
+                                // Rebuild to update the package switch UI and hide rules
                                 rebuildItemsList();
                             }
                         }
