@@ -36,4 +36,10 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_dark</item>
     </style>
+    
+    <!-- Custom toolbar title style without bold (for custom rules screen) -->
+    <style name="ToolbarTitleTextRegular" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/text_dark</item>
+    </style>
 </resources>
