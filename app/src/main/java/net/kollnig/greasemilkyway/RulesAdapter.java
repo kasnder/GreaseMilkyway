@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private final Map<String, Boolean> appExpandedStates = new HashMap<>();
     private List<FilterRule> currentRules = new ArrayList<>();
     private final SharedPreferences collapsePrefs;
+    private final boolean usesTwoStepFlow;
 
     // Hardcoded app names for known packages
     private static final Map<String, String> KNOWN_APP_NAMES = new HashMap<String, String>() {{
@@ -56,6 +58,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.config = config;
         this.packageManager = context.getPackageManager();
         this.collapsePrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        this.usesTwoStepFlow = detectTwoStepFlow();
         
         // Check if this is first run
         if (collapsePrefs.getBoolean(KEY_FIRST_RUN, true)) {
@@ -63,6 +66,20 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             collapsePrefs.edit().putBoolean(KEY_FIRST_RUN, false).apply();
             // All apps will default to collapsed (false) on first run
         }
+    }
+    
+    /**
+     * Detects if the device uses a two-step accessibility flow (Samsung/OneUI, Xiaomi, etc.)
+     * vs one-step flow (Pixel, stock Android)
+     */
+    private boolean detectTwoStepFlow() {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+        // Samsung, Xiaomi, Oppo, Vivo typically use two-step flow
+        return manufacturer.contains("samsung") || 
+               manufacturer.contains("xiaomi") ||
+               manufacturer.contains("oppo") ||
+               manufacturer.contains("vivo") ||
+               manufacturer.contains("oneplus");
     }
 
     public void setOnRuleStateChangedListener(OnRuleStateChangedListener listener) {
@@ -205,6 +222,9 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             });
+            
+            // Setup onboarding text based on OS flow type
+            viewHolder.setupOnboardingText(context, usesTwoStepFlow);
             
             // Hide "Need help?" section when service is enabled
             if (isServiceEnabled) {
@@ -479,6 +499,14 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         View helpToggleButton;
         ImageView helpChevron;
         View helpContent;
+        TextView step1Text;
+        TextView step2Text;
+        TextView step3Text;
+        TextView step4Text;
+        TextView step5Text;
+        View step4Container;
+        View step5Container;
+        View arrowStep4Step5;
         boolean isHelpExpanded = false;
 
         ServiceHeaderViewHolder(View itemView) {
@@ -487,9 +515,44 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             helpToggleButton = itemView.findViewById(R.id.help_toggle_button);
             helpChevron = itemView.findViewById(R.id.help_chevron);
             helpContent = itemView.findViewById(R.id.help_content);
+            step1Text = itemView.findViewById(R.id.step1_text);
+            step2Text = itemView.findViewById(R.id.step2_text);
+            step3Text = itemView.findViewById(R.id.step3_text);
+            step4Text = itemView.findViewById(R.id.step4_text);
+            step5Text = itemView.findViewById(R.id.step5_text);
+            step4Container = itemView.findViewById(R.id.step4_container);
+            step5Container = itemView.findViewById(R.id.step5_container);
+            arrowStep4Step5 = itemView.findViewById(R.id.arrow_step4_step5);
             
             // Setup collapse/expand toggle
             helpToggleButton.setOnClickListener(v -> toggleHelpSection());
+        }
+        
+        void setupOnboardingText(Context context, boolean usesTwoStepFlow) {
+            if (usesTwoStepFlow) {
+                // Two-step flow (Samsung/OneUI, etc.) - 5 steps
+                step1Text.setText(context.getString(R.string.onboarding_step1_twostep));
+                step2Text.setText(context.getString(R.string.onboarding_step2_twostep));
+                step3Text.setText(context.getString(R.string.onboarding_step3_twostep));
+                step4Text.setText(context.getString(R.string.onboarding_step4_twostep));
+                step5Text.setText(context.getString(R.string.onboarding_step5_twostep));
+                
+                // Show both step 4 and step 5, plus arrow between them
+                step4Container.setVisibility(View.VISIBLE);
+                step5Container.setVisibility(View.VISIBLE);
+                arrowStep4Step5.setVisibility(View.VISIBLE);
+            } else {
+                // One-step flow (Pixel, stock Android) - 4 steps
+                step1Text.setText(context.getString(R.string.onboarding_step1_onestep));
+                step2Text.setText(context.getString(R.string.onboarding_step2_onestep));
+                step3Text.setText(context.getString(R.string.onboarding_step3_onestep));
+                step4Text.setText(context.getString(R.string.onboarding_step4_onestep));
+                
+                // Hide step 5 and arrow, show step 4 only
+                step4Container.setVisibility(View.VISIBLE);
+                step5Container.setVisibility(View.GONE);
+                arrowStep4Step5.setVisibility(View.GONE);
+            }
         }
 
         private void toggleHelpSection() {

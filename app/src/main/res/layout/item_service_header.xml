@@ -106,9 +106,9 @@
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step1_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Toggle the enable ReDD Focus Android service"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
@@ -152,9 +152,9 @@
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step2_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Within installed/downloaded apps, find and tap on ReDD Focus Android"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
@@ -197,9 +197,9 @@
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step3_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Toggle the app's accessibility features on. Do not turn on the shortcut (there is no point)"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
@@ -226,8 +226,9 @@
             android:layout_marginTop="0dp"
             android:layout_marginBottom="4dp" />
 
-        <!-- Step 4 -->
+        <!-- Step 4 (one-step) / Step 4 (two-step) -->
         <LinearLayout
+            android:id="@+id/step4_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -242,9 +243,57 @@
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step4_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Success!"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:background="#E5E7EB" />
+
+        </LinearLayout>
+        
+        <!-- Arrow between step 4 and step 5 (two-step only) -->
+        <TextView
+            android:id="@+id/arrow_step4_step5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="↓"
+            android:textSize="24sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:gravity="center"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone" />
+        
+        <!-- Step 5 (two-step only) -->
+        <LinearLayout
+            android:id="@+id/step5_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingEnd="8dp">
+
+                <TextView
+                    android:id="@+id/step5_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary" />
