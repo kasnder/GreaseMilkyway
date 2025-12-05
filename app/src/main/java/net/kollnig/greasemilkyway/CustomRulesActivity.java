@@ -1,15 +1,19 @@
 package net.kollnig.greasemilkyway;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class CustomRulesActivity extends AppCompatActivity {
     private EditText rulesEditor;
@@ -31,6 +35,10 @@ public class CustomRulesActivity extends AppCompatActivity {
 
         // Initialize views
         rulesEditor = findViewById(R.id.rules_editor);
+        
+        // Setup README link
+        TextView readmeLink = findViewById(R.id.readme_link);
+        setupReadmeLink(readmeLink);
         
         // Load existing custom rules
         String[] customRules = config.getCustomRules();
@@ -72,5 +80,33 @@ public class CustomRulesActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupReadmeLink(TextView textView) {
+        String fullText = getString(R.string.custom_rules_readme_link);
+        SpannableString spannableString = new SpannableString(fullText);
+        
+        int start = fullText.indexOf("README");
+        int end = start + "README".length();
+        
+        // Make "README" clickable (no special styling)
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/kasnder/GreaseMilkyway/blob/main/README.md"));
+                startActivity(browserIntent);
+            }
+            
+            @Override
+            public void updateDrawState(android.text.TextPaint ds) {
+                // Keep default text color, no underline
+                ds.setUnderlineText(false);
+                ds.setColor(textView.getCurrentTextColor());
+            }
+        };
+        
+        spannableString.setSpan(clickableSpan, start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(spannableString);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 } 

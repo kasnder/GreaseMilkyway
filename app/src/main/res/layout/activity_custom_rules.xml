@@ -51,6 +51,15 @@
                     android:textColor="?android:attr/textColorPrimary"
                     android:lineSpacingMultiplier="1.2" />
 
+                <TextView
+                    android:id="@+id/readme_link"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textSize="14sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:lineSpacingMultiplier="1.2" />
+
             </LinearLayout>
 
             <!-- Text input area -->
