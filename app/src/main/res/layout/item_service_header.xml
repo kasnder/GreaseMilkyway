@@ -32,7 +32,7 @@
             android:textColor="?android:attr/textColorPrimary" />
 
         <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/service_enabled"
+        android:id="@+id/service_enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="48dp"
@@ -97,18 +97,18 @@
             android:gravity="top"
             android:layout_marginBottom="4dp">
 
-            <!-- Text content (50%) -->
+            <!-- Text content (40%) -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step1_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Toggle the enable ReDD Focus Android service"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
@@ -116,12 +116,16 @@
 
             </LinearLayout>
 
-            <!-- Image placeholder (50%) -->
-            <View
+            <!-- Step 1 image (60%) -->
+            <ImageView
+                android:id="@+id/step1_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
-                android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 1 screenshot" />
 
         </LinearLayout>
 
@@ -147,14 +151,14 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step2_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Within installed/downloaded apps, find and tap on ReDD Focus Android"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
@@ -162,11 +166,16 @@
 
             </LinearLayout>
 
-            <View
+            <!-- Step 2 image (60%) -->
+            <ImageView
+                android:id="@+id/step2_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
-                android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 2 screenshot" />
 
         </LinearLayout>
 
@@ -192,14 +201,14 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step3_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Toggle the app's accessibility features on. Do not turn on the shortcut (there is no point)"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
@@ -207,11 +216,16 @@
 
             </LinearLayout>
 
-            <View
+            <!-- Step 3 image (60%) -->
+            <ImageView
+                android:id="@+id/step3_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
-                android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 3 screenshot" />
 
         </LinearLayout>
 
@@ -226,8 +240,9 @@
             android:layout_marginTop="0dp"
             android:layout_marginBottom="4dp" />
 
-        <!-- Step 4 -->
+        <!-- Step 4 (one-step) / Step 4 (two-step) -->
         <LinearLayout
+            android:id="@+id/step4_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -237,25 +252,83 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
                 <TextView
+                    android:id="@+id/step4_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Success!"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary" />
 
             </LinearLayout>
 
-            <View
+            <!-- Step 4 image (60%) -->
+            <ImageView
+                android:id="@+id/step4_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
-                android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 4 screenshot" />
+
+        </LinearLayout>
+        
+        <!-- Arrow between step 4 and step 5 (two-step only) -->
+        <TextView
+            android:id="@+id/arrow_step4_step5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="↓"
+            android:textSize="24sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:gravity="center"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone" />
+        
+        <!-- Step 5 (two-step only) -->
+        <LinearLayout
+            android:id="@+id/step5_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:paddingEnd="8dp">
+
+                <TextView
+                    android:id="@+id/step5_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary" />
+
+            </LinearLayout>
+
+            <!-- Step 5 image (60%) -->
+            <ImageView
+                android:id="@+id/step5_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 5 screenshot" />
 
         </LinearLayout>
 

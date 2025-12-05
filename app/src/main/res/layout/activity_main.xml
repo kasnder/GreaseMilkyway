@@ -16,14 +16,14 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/header_bg"
             android:elevation="4dp"
-            app:logo="@mipmap/ic_launcher"
+            app:logo="@drawable/ic_logo_header"
             app:logoAdjustViewBounds="true"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingStart="8dp" 
             android:paddingEnd="8dp" 
             app:contentInsetStart="8dp" 
-            app:titleMarginStart="0dp"  
+            app:titleMarginStart="4dp"
             app:titleTextAppearance="@style/ToolbarTitleText"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 

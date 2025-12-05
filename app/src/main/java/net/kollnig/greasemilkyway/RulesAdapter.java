@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +44,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private final Map<String, Boolean> appExpandedStates = new HashMap<>();
     private List<FilterRule> currentRules = new ArrayList<>();
     private final SharedPreferences collapsePrefs;
+    private final boolean usesTwoStepFlow;
 
     // Hardcoded app names for known packages
     private static final Map<String, String> KNOWN_APP_NAMES = new HashMap<String, String>() {{
@@ -64,6 +67,7 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.config = config;
         this.packageManager = context.getPackageManager();
         this.collapsePrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        this.usesTwoStepFlow = detectTwoStepFlow();
         
         // Check if this is first run
         if (collapsePrefs.getBoolean(KEY_FIRST_RUN, true)) {
@@ -71,6 +75,20 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             collapsePrefs.edit().putBoolean(KEY_FIRST_RUN, false).apply();
             // All apps will default to collapsed (false) on first run
         }
+    }
+    
+    /**
+     * Detects if the device uses a two-step accessibility flow (Samsung/OneUI, Xiaomi, etc.)
+     * vs one-step flow (Pixel, stock Android)
+     */
+    private boolean detectTwoStepFlow() {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+        // Samsung, Xiaomi, Oppo, Vivo typically use two-step flow
+        return manufacturer.contains("samsung") || 
+               manufacturer.contains("xiaomi") ||
+               manufacturer.contains("oppo") ||
+               manufacturer.contains("vivo") ||
+               manufacturer.contains("oneplus");
     }
 
     public void setOnRuleStateChangedListener(OnRuleStateChangedListener listener) {
@@ -213,6 +231,10 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             });
+            
+            // Setup onboarding text and images based on OS flow type
+            viewHolder.setupOnboardingText(context, usesTwoStepFlow);
+            viewHolder.setupOnboardingImages(context, usesTwoStepFlow);
             
             // Hide "Need help?" section when service is enabled
             if (isServiceEnabled) {
@@ -535,6 +557,19 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         View helpToggleButton;
         ImageView helpChevron;
         View helpContent;
+        TextView step1Text;
+        TextView step2Text;
+        TextView step3Text;
+        TextView step4Text;
+        TextView step5Text;
+        ImageView step1Image;
+        ImageView step2Image;
+        ImageView step3Image;
+        ImageView step4Image;
+        ImageView step5Image;
+        View step4Container;
+        View step5Container;
+        View arrowStep4Step5;
         boolean isHelpExpanded = false;
 
         ServiceHeaderViewHolder(View itemView) {
@@ -543,9 +578,88 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             helpToggleButton = itemView.findViewById(R.id.help_toggle_button);
             helpChevron = itemView.findViewById(R.id.help_chevron);
             helpContent = itemView.findViewById(R.id.help_content);
+            step1Text = itemView.findViewById(R.id.step1_text);
+            step2Text = itemView.findViewById(R.id.step2_text);
+            step3Text = itemView.findViewById(R.id.step3_text);
+            step4Text = itemView.findViewById(R.id.step4_text);
+            step5Text = itemView.findViewById(R.id.step5_text);
+            step1Image = itemView.findViewById(R.id.step1_image);
+            step2Image = itemView.findViewById(R.id.step2_image);
+            step3Image = itemView.findViewById(R.id.step3_image);
+            step4Image = itemView.findViewById(R.id.step4_image);
+            step5Image = itemView.findViewById(R.id.step5_image);
+            step4Container = itemView.findViewById(R.id.step4_container);
+            step5Container = itemView.findViewById(R.id.step5_container);
+            arrowStep4Step5 = itemView.findViewById(R.id.arrow_step4_step5);
             
             // Setup collapse/expand toggle
             helpToggleButton.setOnClickListener(v -> toggleHelpSection());
+        }
+        
+        /**
+         * Gets the resource ID for a step image based on step number, flow type, and theme
+         */
+        private int getStepImageResource(Context context, int stepNumber, boolean usesTwoStepFlow) {
+            // Detect dark mode
+            boolean isDarkMode = (context.getResources().getConfiguration().uiMode 
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+            
+            // Build resource name: step[N]_[flow]
+            String flowType = usesTwoStepFlow ? "twostep" : "onestep";
+            String resourceName = "step" + stepNumber + "_" + flowType;
+            
+            // Get resource ID dynamically
+            int resourceId = context.getResources().getIdentifier(
+                resourceName, "drawable", context.getPackageName()
+            );
+            
+            // Fallback to placeholder if image not found
+            if (resourceId == 0) {
+                // Return transparent drawable as fallback
+                return android.R.color.transparent;
+            }
+            
+            return resourceId;
+        }
+        
+        void setupOnboardingText(Context context, boolean usesTwoStepFlow) {
+            if (usesTwoStepFlow) {
+                // Two-step flow (Samsung/OneUI, etc.) - 5 steps
+                step1Text.setText(context.getString(R.string.onboarding_step1_twostep));
+                step2Text.setText(context.getString(R.string.onboarding_step2_twostep));
+                step3Text.setText(context.getString(R.string.onboarding_step3_twostep));
+                step4Text.setText(context.getString(R.string.onboarding_step4_twostep));
+                step5Text.setText(context.getString(R.string.onboarding_step5_twostep));
+                
+                // Show both step 4 and step 5, plus arrow between them
+                step4Container.setVisibility(View.VISIBLE);
+                step5Container.setVisibility(View.VISIBLE);
+                arrowStep4Step5.setVisibility(View.VISIBLE);
+            } else {
+                // One-step flow (Pixel, stock Android) - 4 steps
+                step1Text.setText(context.getString(R.string.onboarding_step1_onestep));
+                step2Text.setText(context.getString(R.string.onboarding_step2_onestep));
+                step3Text.setText(context.getString(R.string.onboarding_step3_onestep));
+                step4Text.setText(context.getString(R.string.onboarding_step4_onestep));
+                
+                // Hide step 5 and arrow, show step 4 only
+                step4Container.setVisibility(View.VISIBLE);
+                step5Container.setVisibility(View.GONE);
+                arrowStep4Step5.setVisibility(View.GONE);
+            }
+        }
+        
+        void setupOnboardingImages(Context context, boolean usesTwoStepFlow) {
+            // Load images for all steps
+            step1Image.setImageResource(getStepImageResource(context, 1, usesTwoStepFlow));
+            step2Image.setImageResource(getStepImageResource(context, 2, usesTwoStepFlow));
+            step3Image.setImageResource(getStepImageResource(context, 3, usesTwoStepFlow));
+            step4Image.setImageResource(getStepImageResource(context, 4, usesTwoStepFlow));
+            
+            // Step 5 only exists for two-step flow
+            if (usesTwoStepFlow) {
+                step5Image.setImageResource(getStepImageResource(context, 5, usesTwoStepFlow));
+            }
         }
 
         private void toggleHelpSection() {
