@@ -97,11 +97,11 @@
             android:gravity="top"
             android:layout_marginBottom="4dp">
 
-            <!-- Text content (50%) -->
+            <!-- Text content (40%) -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
@@ -116,12 +116,12 @@
 
             </LinearLayout>
 
-            <!-- Step 1 image (50%) -->
+            <!-- Step 1 image (60%) -->
             <ImageView
                 android:id="@+id/step1_image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:adjustViewBounds="true"
                 android:maxHeight="200dp"
                 android:scaleType="fitCenter"
@@ -151,7 +151,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
@@ -166,12 +166,12 @@
 
             </LinearLayout>
 
-            <!-- Step 2 image (50%) -->
+            <!-- Step 2 image (60%) -->
             <ImageView
                 android:id="@+id/step2_image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:adjustViewBounds="true"
                 android:maxHeight="200dp"
                 android:scaleType="fitCenter"
@@ -201,7 +201,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
@@ -216,12 +216,12 @@
 
             </LinearLayout>
 
-            <!-- Step 3 image (50%) -->
+            <!-- Step 3 image (60%) -->
             <ImageView
                 android:id="@+id/step3_image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:adjustViewBounds="true"
                 android:maxHeight="200dp"
                 android:scaleType="fitCenter"
@@ -252,7 +252,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
@@ -266,12 +266,12 @@
 
             </LinearLayout>
 
-            <!-- Step 4 image (50%) -->
+            <!-- Step 4 image (60%) -->
             <ImageView
                 android:id="@+id/step4_image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:adjustViewBounds="true"
                 android:maxHeight="200dp"
                 android:scaleType="fitCenter"
@@ -305,7 +305,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp">
 
@@ -319,12 +319,12 @@
 
             </LinearLayout>
 
-            <!-- Step 5 image (50%) -->
+            <!-- Step 5 image (60%) -->
             <ImageView
                 android:id="@+id/step5_image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:adjustViewBounds="true"
                 android:maxHeight="200dp"
                 android:scaleType="fitCenter"
