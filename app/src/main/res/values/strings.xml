@@ -21,13 +21,15 @@
     <string name="expand_app_rules">Expand app rules</string>
     <string name="collapse_app_rules">Collapse app rules</string>
     
-    <!-- Onboarding steps - One-step flow (Pixel, stock Android) -->
+    <!-- Step text - One-step flow (Pixel, stock Android) -->
+    <!-- Image files: step1_onestep.png, step2_onestep.png, etc. -->
     <string name="onboarding_step1_onestep">Toggle the Enable ReDD Focus Android service</string>
     <string name="onboarding_step2_onestep">Tap on ReDD Focus Android in the list</string>
     <string name="onboarding_step3_onestep">Toggle the app\'s accessibility features on. Do not turn on the shortcut (there is no point)</string>
     <string name="onboarding_step4_onestep">Success!</string>
     
-    <!-- Onboarding steps - Two-step flow (Samsung/OneUI, Xiaomi, etc.) -->
+    <!-- Step text - Two-step flow (Samsung/OneUI, Xiaomi, etc.) -->
+    <!-- Image files: step1_twostep.png, step2_twostep.png, etc. -->
     <string name="onboarding_step1_twostep">Toggle the Enable ReDD Focus Android service</string>
     <string name="onboarding_step2_twostep">Tap on "Installed apps"</string>
     <string name="onboarding_step3_twostep">Find and tap on ReDD Focus Android</string>

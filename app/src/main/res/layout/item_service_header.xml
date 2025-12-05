@@ -32,7 +32,7 @@
             android:textColor="?android:attr/textColorPrimary" />
 
         <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/service_enabled"
+        android:id="@+id/service_enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="48dp"
@@ -116,12 +116,16 @@
 
             </LinearLayout>
 
-            <!-- Image placeholder (50%) -->
-            <View
+            <!-- Step 1 image (50%) -->
+            <ImageView
+                android:id="@+id/step1_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 1 screenshot" />
 
         </LinearLayout>
 
@@ -162,11 +166,16 @@
 
             </LinearLayout>
 
-            <View
+            <!-- Step 2 image (50%) -->
+            <ImageView
+                android:id="@+id/step2_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 2 screenshot" />
 
         </LinearLayout>
 
@@ -207,11 +216,16 @@
 
             </LinearLayout>
 
-            <View
+            <!-- Step 3 image (50%) -->
+            <ImageView
+                android:id="@+id/step3_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 3 screenshot" />
 
         </LinearLayout>
 
@@ -252,11 +266,16 @@
 
             </LinearLayout>
 
-            <View
+            <!-- Step 4 image (50%) -->
+            <ImageView
+                android:id="@+id/step4_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 4 screenshot" />
 
         </LinearLayout>
         
@@ -300,11 +319,16 @@
 
             </LinearLayout>
 
-            <View
+            <!-- Step 5 image (50%) -->
+            <ImageView
+                android:id="@+id/step5_image"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="#E5E7EB" />
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 5 screenshot" />
 
         </LinearLayout>
 
