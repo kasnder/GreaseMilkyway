@@ -1,13 +1,16 @@
 package net.kollnig.greasemilkyway;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowInsetsController;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -92,6 +95,27 @@ public class CustomRulesActivity extends AppCompatActivity {
         int backgroundColor = getResources().getColor(R.color.background_main, getTheme());
         // Set navigation bar color to match app background
         getWindow().setNavigationBarColor(backgroundColor);
+        
+        // Set navigation bar icon color: grey in light mode, white in dark mode
+        boolean isLightMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) 
+                             != Configuration.UI_MODE_NIGHT_YES;
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                int appearance = isLightMode ? WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS : 0;
+                controller.setSystemBarsAppearance(appearance, WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+            }
+        } else {
+            View decorView = getWindow().getDecorView();
+            int flags = decorView.getSystemUiVisibility();
+            if (isLightMode) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            } else {
+                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
+            decorView.setSystemUiVisibility(flags);
+        }
     }
 
     private void setupReadmeLink(TextView textView) {
