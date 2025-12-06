@@ -20,9 +20,9 @@
             app:logoAdjustViewBounds="true"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:paddingStart="8dp" 
-            android:paddingEnd="8dp" 
-            app:contentInsetStart="8dp" 
+            android:paddingStart="24dp" 
+            android:paddingEnd="16dp" 
+            app:contentInsetStart="0dp" 
             app:titleMarginStart="4dp"
             app:titleTextAppearance="@style/ToolbarTitleText"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
