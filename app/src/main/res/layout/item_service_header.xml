@@ -87,6 +87,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="8dp"
+        android:paddingBottom="0dp"
         android:visibility="gone">
 
         <!-- Step 1 -->
@@ -384,7 +385,7 @@
             android:textColor="?android:attr/textColorSecondary"
             android:fontFamily="sans-serif-medium"
             android:layout_marginTop="8dp"
-            android:paddingBottom="8dp" />
+            android:layout_marginBottom="-8dp" />
 
     </LinearLayout>
 
