@@ -107,8 +107,8 @@ public class CustomRulesActivity extends AppCompatActivity {
                     
                     @Override
                     public void updateDrawState(android.text.TextPaint ds) {
-                        // Keep default text color, no underline
-                        ds.setUnderlineText(false);
+                        // Keep default text color, underline to show it's a link
+                        ds.setUnderlineText(true);
                         ds.setColor(textView.getCurrentTextColor());
                     }
                 };
