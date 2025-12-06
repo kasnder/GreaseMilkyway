@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Reload settings to pick up any new custom rules
+        loadSettings();
         // Update adapter to grey out items when service disabled
         adapter.refreshServiceState();
         // Check if accessibility service is enabled
@@ -119,10 +121,7 @@ public class MainActivity extends AppCompatActivity {
             String settingValue = Settings.Secure.getString(
                     getContentResolver(),
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            if (settingValue != null && settingValue.contains(serviceName)) {
-                // Reload rules to reflect any changes from CustomRulesActivity
-                loadSettings();
-            }
+            // Rules are already reloaded at the start of onResume()
         }
 
         // Notify the adapter to update the service header
