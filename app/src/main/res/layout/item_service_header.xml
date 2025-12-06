@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="top"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="0dp">
 
             <!-- Text content (40%) -->
             <LinearLayout
@@ -130,15 +130,22 @@
         </LinearLayout>
 
         <!-- Arrow between steps -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="↓"
-            android:textSize="24sp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:gravity="center"
+            android:orientation="horizontal"
             android:layout_marginTop="0dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="0dp">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
 
         <!-- Step 2 -->
         <LinearLayout
@@ -146,7 +153,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="top"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="0dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -180,15 +187,22 @@
         </LinearLayout>
 
         <!-- Arrow between steps -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="↓"
-            android:textSize="24sp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:gravity="center"
+            android:orientation="horizontal"
             android:layout_marginTop="0dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="0dp">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
 
         <!-- Step 3 -->
         <LinearLayout
@@ -196,7 +210,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="top"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="0dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -230,15 +244,22 @@
         </LinearLayout>
 
         <!-- Arrow between steps -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="↓"
-            android:textSize="24sp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:gravity="center"
+            android:orientation="horizontal"
             android:layout_marginTop="0dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="0dp">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
 
         <!-- Step 4 (one-step) / Step 4 (two-step) -->
         <LinearLayout
@@ -247,7 +268,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="top"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="0dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -280,17 +301,24 @@
         </LinearLayout>
         
         <!-- Arrow between step 4 and step 5 (two-step only) -->
-        <TextView
+        <LinearLayout
             android:id="@+id/arrow_step4_step5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="↓"
-            android:textSize="24sp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:gravity="center"
+            android:orientation="horizontal"
             android:layout_marginTop="0dp"
-            android:layout_marginBottom="4dp"
-            android:visibility="gone" />
+            android:layout_marginBottom="0dp"
+            android:visibility="gone">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
         
         <!-- Step 5 (two-step only) -->
         <LinearLayout
@@ -299,7 +327,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="top"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="0dp"
             android:visibility="gone">
 
             <LinearLayout
