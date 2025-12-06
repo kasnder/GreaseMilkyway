@@ -687,6 +687,14 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     helpContent.setAlpha(animation.getAnimatedFraction());
                     helpContent.requestLayout();
                 });
+                heightAnimator.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation) {
+                        // Reset to WRAP_CONTENT so content can expand fully (including padding)
+                        helpContent.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        helpContent.requestLayout();
+                    }
+                });
                 heightAnimator.start();
             } else {
                 // Collapsing: animate from current height to 0
