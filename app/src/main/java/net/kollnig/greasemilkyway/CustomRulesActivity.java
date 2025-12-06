@@ -23,6 +23,9 @@ public class CustomRulesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custom_rules);
+        
+        // Setup navigation bar color to match app background
+        setupNavigationBarColor();
 
         // Setup toolbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -82,6 +85,13 @@ public class CustomRulesActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupNavigationBarColor() {
+        // Get the background color from theme
+        int backgroundColor = getResources().getColor(R.color.background_main, getTheme());
+        // Set navigation bar color to match app background
+        getWindow().setNavigationBarColor(backgroundColor);
     }
 
     private void setupReadmeLink(TextView textView) {
