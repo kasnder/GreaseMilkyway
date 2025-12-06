@@ -368,7 +368,7 @@
             android:textSize="11sp"
             android:textColor="?android:attr/textColorSecondary"
             android:fontFamily="sans-serif-medium"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:paddingBottom="8dp" />
 
     </LinearLayout>
