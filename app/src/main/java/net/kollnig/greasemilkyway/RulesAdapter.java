@@ -667,6 +667,8 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             if (isHelpExpanded) {
                 // Expanding: measure target height first
+                // Temporarily set to WRAP_CONTENT to get accurate measurement
+                helpContent.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 helpContent.setVisibility(View.VISIBLE);
                 helpContent.measure(
                     View.MeasureSpec.makeMeasureSpec(((View) helpContent.getParent()).getWidth(), View.MeasureSpec.EXACTLY),
@@ -690,9 +692,8 @@ public class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 heightAnimator.addListener(new android.animation.AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(android.animation.Animator animation) {
-                        // Reset to WRAP_CONTENT so content can expand fully (including padding)
-                        helpContent.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                        helpContent.requestLayout();
+                        // Keep the fixed height to prevent jump - it's already at the correct size
+                        helpContent.setAlpha(1f);
                     }
                 });
                 heightAnimator.start();
