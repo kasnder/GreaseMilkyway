@@ -103,7 +103,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:orientation="vertical"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:gravity="top">
 
                 <TextView
                     android:id="@+id/step1_text"
@@ -112,7 +113,9 @@
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
 
             </LinearLayout>
 
@@ -124,7 +127,7 @@
                 android:layout_weight="3"
                 android:adjustViewBounds="true"
                 android:maxHeight="200dp"
-                android:scaleType="fitCenter"
+                android:scaleType="fitStart"
                 android:contentDescription="Step 1 screenshot" />
 
         </LinearLayout>
@@ -160,7 +163,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:orientation="vertical"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:gravity="top">
 
                 <TextView
                     android:id="@+id/step2_text"
@@ -169,7 +173,9 @@
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
 
             </LinearLayout>
 
@@ -217,7 +223,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:orientation="vertical"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:gravity="top">
 
                 <TextView
                     android:id="@+id/step3_text"
@@ -226,7 +233,9 @@
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
 
             </LinearLayout>
 
@@ -275,7 +284,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:orientation="vertical"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:gravity="top">
 
                 <TextView
                     android:id="@+id/step4_text"
@@ -283,7 +293,9 @@
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary" />
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
 
             </LinearLayout>
 
@@ -335,7 +347,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:orientation="vertical"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:gravity="top">
 
                 <TextView
                     android:id="@+id/step5_text"
@@ -343,7 +356,9 @@
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary" />
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
 
             </LinearLayout>
 
