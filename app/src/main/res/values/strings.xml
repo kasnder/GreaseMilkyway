@@ -24,16 +24,16 @@
     
     <!-- Step text - One-step flow (Pixel, stock Android) -->
     <!-- Image files: step1_onestep.png, step2_onestep.png, etc. -->
-    <string name="onboarding_step1_onestep">Enable the ReDD Focus Android service</string>
+    <string name="onboarding_step1_onestep">Toggle the enable service switch</string>
     <string name="onboarding_step2_onestep">Tap on ReDD Focus Android</string>
-    <string name="onboarding_step3_onestep">Turn the app on. Do not turn on the app shortcut.</string>
-    <string name="onboarding_step4_onestep">Success!</string>
+    <string name="onboarding_step3_onestep">Turn the app on</string>
+    <string name="onboarding_step4_onestep">Tap "Allow"</string>
     
     <!-- Step text - Two-step flow (Samsung/OneUI, Xiaomi, etc.) -->
     <!-- Image files: step1_twostep.png, step2_twostep.png, etc. -->
-    <string name="onboarding_step1_twostep">Enable the ReDD Focus Android service</string>
+    <string name="onboarding_step1_twostep">Toggle the enable service switch</string>
     <string name="onboarding_step2_twostep">Tap on "Installed apps"</string>
-    <string name="onboarding_step3_twostep">Find and tap on ReDD Focus Android</string>
-    <string name="onboarding_step4_twostep">Turn the app on. Do not turn on the app shortcut.</string>
-    <string name="onboarding_step5_twostep">Success!</string>
+    <string name="onboarding_step3_twostep">Tap on ReDD Focus Android</string>
+    <string name="onboarding_step4_twostep">Turn the app on</string>
+    <string name="onboarding_step5_twostep">Tap "Allow"</string>
 </resources>
