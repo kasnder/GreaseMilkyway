@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
         
         // Setup footer with clickable link
         setupFooter();
+        
+        // Setup navigation bar padding - reduces available height to push content above nav bar
+        setupNavigationBarPadding();
     }
 
     private void setupFooter() {
@@ -145,6 +148,27 @@ public class MainActivity extends AppCompatActivity {
         int backgroundColor = getResources().getColor(R.color.background_main, getTheme());
         // Set navigation bar color to match app background
         getWindow().setNavigationBarColor(backgroundColor);
+    }
+
+    private void setupNavigationBarPadding() {
+        // Apply window insets to root CoordinatorLayout to reduce available height
+        // This pushes all content (footer, FAB, RecyclerView) up by nav bar height
+        View rootLayout = findViewById(R.id.main);
+        ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (v, insets) -> {
+            Insets navBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            Insets statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            
+            // Set padding on root layout: top = status bar, bottom = nav bar
+            // This reduces available height, pushing all content up uniformly
+            v.setPadding(
+                v.getPaddingLeft(),
+                statusBarInsets.top,
+                v.getPaddingRight(),
+                navBarInsets.bottom
+            );
+            
+            return insets;
+        });
     }
 
     private boolean isAccessibilityServiceEnabled() {
