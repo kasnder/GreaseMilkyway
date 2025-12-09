@@ -2,7 +2,9 @@
 
 > **Note:** This app was formerly known as GMWay (or GreaseMilkyway). The functionality remains the same, only the name has changed.
 
-<img src="fastlane/metadata/android/en-US/images/icon.png" alt="Redd Focus Logo" width="200"/>
+<div align="center">
+  <img src="fastlane/metadata/android/en-US/images/icon.png" alt="Redd Focus Logo" width="200"/>
+</div>
 
 Redd Focus is an Android accessibility service designed to help people with attention-related conditions (such as ADHD) manage their digital environment. By allowing users to block distracting content in apps, it helps create a more focused and less overwhelming digital experience.
 
