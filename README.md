@@ -1,4 +1,4 @@
-# Redd Focus (Beta)
+# Redd Focus for Android (Beta)
 
 > **Note:** This app was formerly known as GMWay (or GreaseMilkyway). The functionality remains the same, only the name has changed.
 
