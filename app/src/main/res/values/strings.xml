@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ReDD Focus Android</string>
+    <string name="app_name">ReDD Focus</string>
     <string name="accessibility_service_description">ReDD Focus - Help ADHD</string>
     <string name="enable_accessibility_service">Enable Accessibility Service</string>
-    <string name="enable_service">Enable ReDD Focus Android</string>
+    <string name="enable_service">Enable ReDD Focus</string>
     <string name="rules_settings">Rules</string>
     <string name="enable_service_first">Please enable the accessibility service first</string>
     <string name="custom_rules_title">Custom Rules (Expert Mode)</string>
@@ -25,7 +25,7 @@
     <!-- Step text - One-step flow (Pixel, stock Android) -->
     <!-- Image files: step1_onestep.png, step2_onestep.png, etc. -->
     <string name="onboarding_step1_onestep">Toggle the enable service switch</string>
-    <string name="onboarding_step2_onestep">Tap on ReDD Focus Android</string>
+    <string name="onboarding_step2_onestep">Tap on ReDD Focus</string>
     <string name="onboarding_step3_onestep">Turn the app on</string>
     <string name="onboarding_step4_onestep">Tap "Allow"</string>
     
@@ -33,7 +33,7 @@
     <!-- Image files: step1_twostep.png, step2_twostep.png, etc. -->
     <string name="onboarding_step1_twostep">Toggle the enable service switch</string>
     <string name="onboarding_step2_twostep">Tap on "Installed apps"</string>
-    <string name="onboarding_step3_twostep">Tap on ReDD Focus Android</string>
+    <string name="onboarding_step3_twostep">Tap on ReDD Focus</string>
     <string name="onboarding_step4_twostep">Turn the app on</string>
     <string name="onboarding_step5_twostep">Tap "Allow"</string>
 </resources>
