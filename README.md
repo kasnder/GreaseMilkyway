@@ -1,5 +1,7 @@
 # Redd Focus (Beta)
 
+> **Note:** This app was formerly known as GMWay (or GreaseMilkyway). The functionality remains the same, only the name has changed.
+
 <img src="fastlane/metadata/android/en-US/images/icon.png" alt="Redd Focus Logo" width="200"/>
 
 <a href='https://play.google.com/store/apps/details?id=net.kollnig.greasemilkyway'><img height=70 alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
@@ -7,8 +9,6 @@
 <a href='https://apt.izzysoft.de/fdroid/index/apk/net.kollnig.greasemilkyway'><img height=70 alt='Get it on IzzyOnDroid' src='https://raw.githubusercontent.com/TrackerControl/tracker-control-android/master/images/get-it-on-izzy.png'/></a>
 
 Redd Focus is an Android accessibility service designed to help people with attention-related conditions (such as ADHD) manage their digital environment. By allowing users to block distracting content in apps, it helps create a more focused and less overwhelming digital experience.
-
-> **Note:** This app was formerly known as GMWay (or GreaseMilkyway). The functionality remains the same, only the name has changed.
 
 It is a successor to the [GreaseWorld initiative](https://greaseuniverse.github.io) that previously developed a range of tooling to respond to potentially harmful patterns in mobile apps.
 
