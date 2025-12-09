@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ReDD Focus Brand Colors - Dark Mode -->
+    
+    <!-- Primary Blue - Lighter/brighter in dark mode for better visibility -->
+    <color name="primary_blue">#60A5FA</color>
+    
+    <!-- Header Background - Dark blue for dark mode -->
+    <color name="header_bg">#001F3D</color>
+    
+    <!-- Light Blue - Darker, muted blue for dark mode backgrounds -->
+    <color name="light_blue">#1E3A5F</color>
+    
+    <!-- Text Colors - Inverted for dark mode -->
+    <color name="text_dark">#F5F5F5</color>
+    <color name="text_light">#D1D5DB</color>
+    
+    <!-- Background Colors - Dark gray, easier on eyes than pure black -->
+    <color name="white">#121826</color>
+    <color name="background_main">#121826</color>
+    <color name="service_header_bg">#1E2A3A</color>  <!-- Dark blue-grey for service section -->
+    
+    <!-- Accent Colors - Slightly brighter in dark mode -->
+    <color name="accent_green">#34D399</color>
+    
+    <!-- Callout/Alert Colors (for warnings, errors) - Muted for dark mode -->
+    <color name="callout_bg">#7F1D1D</color>
+    <color name="callout_text">#FEE2E2</color>
+    
+    <!-- System Colors -->
+    <color name="black">#FF000000</color>
+    
+</resources>
+

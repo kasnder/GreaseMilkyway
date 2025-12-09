@@ -1,21 +1,392 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_marginStart="-16dp"
+    android:layout_marginEnd="-16dp"
+    android:layout_marginTop="-16dp"
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:background="@color/service_header_bg">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="@string/service_settings"
-        android:textAppearance="?attr/textAppearanceHeadline6" />
-
-    <Switch
-        android:id="@+id/service_enabled"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/enable_service" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/enable_service"
+            android:textSize="16sp"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/service_enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            android:scaleX="0.9"
+            android:scaleY="0.9"
+            app:thumbTint="@color/service_switch_thumb"
+            app:trackTint="@color/service_switch_track" />
+
+    </LinearLayout>
+
+    <!-- Collapsible onboarding section -->
+    <LinearLayout
+        android:id="@+id/help_toggle_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="-32dp"
+        android:layout_marginEnd="-32dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/help_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/need_help"
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <ImageView
+            android:id="@+id/help_chevron"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_expand_more"
+            android:contentDescription="@string/expand_help_content"
+            app:tint="?android:attr/textColorSecondary" />
+
+    </LinearLayout>
+
+    <!-- Expandable content container -->
+    <LinearLayout
+        android:id="@+id/help_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="0dp"
+        android:visibility="gone">
+
+        <!-- Step 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginBottom="0dp">
+
+            <!-- Text content (40%) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:paddingEnd="8dp"
+                android:gravity="top">
+
+                <TextView
+                    android:id="@+id/step1_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="4dp"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
+
+            </LinearLayout>
+
+            <!-- Step 1 image (60%) -->
+            <ImageView
+                android:id="@+id/step1_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitStart"
+                android:contentDescription="Step 1 screenshot" />
+
+        </LinearLayout>
+
+        <!-- Arrow between steps -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Step 2 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginBottom="0dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:paddingEnd="8dp"
+                android:gravity="top">
+
+                <TextView
+                    android:id="@+id/step2_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="4dp"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
+
+            </LinearLayout>
+
+            <!-- Step 2 image (60%) -->
+            <ImageView
+                android:id="@+id/step2_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 2 screenshot" />
+
+        </LinearLayout>
+
+        <!-- Arrow between steps -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Step 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginBottom="0dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:paddingEnd="8dp"
+                android:gravity="top">
+
+                <TextView
+                    android:id="@+id/step3_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:layout_marginBottom="4dp"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
+
+            </LinearLayout>
+
+            <!-- Step 3 image (60%) -->
+            <ImageView
+                android:id="@+id/step3_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 3 screenshot" />
+
+        </LinearLayout>
+
+        <!-- Arrow between steps -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Step 4 (one-step) / Step 4 (two-step) -->
+        <LinearLayout
+            android:id="@+id/step4_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginBottom="0dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:paddingEnd="8dp"
+                android:gravity="top">
+
+                <TextView
+                    android:id="@+id/step4_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
+
+            </LinearLayout>
+
+            <!-- Step 4 image (60%) -->
+            <ImageView
+                android:id="@+id/step4_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 4 screenshot" />
+
+        </LinearLayout>
+        
+        <!-- Arrow between step 4 and step 5 (two-step only) -->
+        <LinearLayout
+            android:id="@+id/arrow_step4_step5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:visibility="gone">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="2" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="↓"
+                android:textSize="24sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center" />
+        </LinearLayout>
+        
+        <!-- Step 5 (two-step only) -->
+        <LinearLayout
+            android:id="@+id/step5_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginBottom="0dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:paddingEnd="8dp"
+                android:gravity="top">
+
+                <TextView
+                    android:id="@+id/step5_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:includeFontPadding="false"
+                    android:paddingTop="0dp" />
+
+            </LinearLayout>
+
+            <!-- Step 5 image (60%) -->
+            <ImageView
+                android:id="@+id/step5_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:adjustViewBounds="true"
+                android:maxHeight="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Step 5 screenshot" />
+
+        </LinearLayout>
+
+        <!-- Note -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note: This process may look slightly different depending on your phone and Android version."
+            android:textSize="11sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="-8dp" />
+
+    </LinearLayout>
 
 </LinearLayout> 

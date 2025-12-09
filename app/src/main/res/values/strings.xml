@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GMWay</string>
-    <string name="accessibility_service_description">Help ADHD</string>
+    <string name="app_name">ReDD Focus Android</string>
+    <string name="accessibility_service_description">ReDD Focus - Help ADHD</string>
     <string name="enable_accessibility_service">Enable Accessibility Service</string>
-    <string name="service_settings">Service Settings</string>
-    <string name="enable_service">Enable Service</string>
+    <string name="enable_service">Enable ReDD Focus Android</string>
     <string name="rules_settings">Rules</string>
     <string name="enable_service_first">Please enable the accessibility service first</string>
     <string name="custom_rules_title">Custom Rules (Expert Mode)</string>
-    <string name="custom_rules_hint">⚠️ Expert Mode ⚠️\n\nThis feature is for advanced users who understand Android view IDs and content descriptions.\n\nEnter your custom rules here, one per line.\n\nExample:\ncom.example.app##viewId=com.example.app:id/distracting_element##desc=Distracting content##color=FFFFFF</string>
+    <string name="custom_rules_hint">⚠️ Expert Mode ⚠️\n\nThis feature is for advanced users who understand Android view IDs and content descriptions.\n\nEnter your custom rules below, one per line.\n\nExample:\ncom.example.app##viewId=com.example.app:id/distracting_element##desc=Distracting content##color=FFFFFF</string>
+    <string name="custom_rules_readme_link">For more information, see the README</string>
     <string name="save_rules">Save Rules</string>
     <string name="rules_saved">Rules saved successfully</string>
     <string name="invalid_rules">Invalid rules format. Please check your rules and try again.</string>
@@ -16,6 +16,24 @@
     <string name="disable_all_rules_for_app">Disable all rules for this app</string>
     <string name="rule_requires_english">This rule may require English to be the main display language.</string>
     <string name="app_not_installed">App not installed</string>
-    <string name="feed_warning_message">Note for first-time users: Feed elements are not hidden by default; you can hide them manually below. Moreover, in case an overlay does not hide, then try changing apps, pressing the home button, or locking the phone.</string>
-    <string name="dismiss">Dismiss</string>
+    <string name="need_help">Need help?</string>
+    <string name="expand_help_content">Expand help content</string>
+    <string name="collapse_help_content">Collapse help content</string>
+    <string name="expand_app_rules">Expand app rules</string>
+    <string name="collapse_app_rules">Collapse app rules</string>
+    
+    <!-- Step text - One-step flow (Pixel, stock Android) -->
+    <!-- Image files: step1_onestep.png, step2_onestep.png, etc. -->
+    <string name="onboarding_step1_onestep">Toggle the enable service switch</string>
+    <string name="onboarding_step2_onestep">Tap on ReDD Focus Android</string>
+    <string name="onboarding_step3_onestep">Turn the app on</string>
+    <string name="onboarding_step4_onestep">Tap "Allow"</string>
+    
+    <!-- Step text - Two-step flow (Samsung/OneUI, Xiaomi, etc.) -->
+    <!-- Image files: step1_twostep.png, step2_twostep.png, etc. -->
+    <string name="onboarding_step1_twostep">Toggle the enable service switch</string>
+    <string name="onboarding_step2_twostep">Tap on "Installed apps"</string>
+    <string name="onboarding_step3_twostep">Tap on ReDD Focus Android</string>
+    <string name="onboarding_step4_twostep">Turn the app on</string>
+    <string name="onboarding_step5_twostep">Tap "Allow"</string>
 </resources>
