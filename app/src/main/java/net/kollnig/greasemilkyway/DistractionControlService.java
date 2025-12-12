@@ -2,6 +2,8 @@ package net.kollnig.greasemilkyway;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -163,17 +165,15 @@ public class DistractionControlService extends AccessibilityService {
     }
 
     private boolean isLauncherPackage(String packageName) {
-        return packageName.equals("com.android.launcher3") || // AOSP/LineageOS
-                packageName.equals("com.google.android.apps.nexuslauncher") || // Pixel
-                packageName.equals("com.miui.home") || // Xiaomi
-                packageName.equals("com.sec.android.app.launcher") || // Samsung
-                packageName.equals("com.oppo.launcher") || // OPPO
-                packageName.equals("com.coloros.launcher") || // ColorOS
-                packageName.equals("com.huawei.android.launcher") || // Huawei
-                packageName.equals("com.oneplus.launcher") || // OnePlus
-                packageName.equals("com.nothing.launcher") || // Nothing
-                packageName.equals("com.asus.launcher") || // ASUS
-                packageName.equals("com.teslacoilsw.launcher"); // Nova
+        PackageManager localPackageManager = getPackageManager();
+        Intent intent = new Intent("android.intent.action.MAIN");
+        intent.addCategory("android.intent.category.HOME");
+        String str = localPackageManager
+                .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                .activityInfo
+                .packageName;
+        Log.e("Current launcher Package Name:", str);
+        return packageName.equals(str);
     }
 
     private boolean shouldProcessEvent(AccessibilityEvent event) {

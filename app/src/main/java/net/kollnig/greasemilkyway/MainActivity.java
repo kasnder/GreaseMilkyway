@@ -1,18 +1,32 @@
 package net.kollnig.greasemilkyway;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.MenuItem;
 import android.content.SharedPreferences;
 import android.view.View;
+import android.view.WindowInsetsController;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ImageButton;
+import android.graphics.Typeface;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import com.google.android.material.appbar.MaterialToolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,33 +36,22 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConfig config;
     private RecyclerView rulesList;
     private RulesAdapter adapter;
-    private static final String FEED_WARNING_DISMISSED_KEY = "feed_warning_dismissed";
-    private View feedWarningBanner;
-    private ImageButton feedWarningDismiss;
-    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        // Setup navigation bar color and icon appearance
+        setupNavigationBarColor();
 
         // Setup toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
         // Initialize config
         config = new ServiceConfig(this);
-        prefs = config.getPrefs();
-
-        // Setup feed warning banner
-        feedWarningBanner = findViewById(R.id.feed_warning_banner);
-        feedWarningDismiss = findViewById(R.id.feed_warning_dismiss);
-        feedWarningDismiss.setOnClickListener(v -> {
-            feedWarningBanner.setVisibility(View.GONE);
-            prefs.edit().putBoolean(FEED_WARNING_DISMISSED_KEY, true).apply();
-        });
-        updateFeedWarningBanner();
 
         // Initialize views
         rulesList = findViewById(R.id.rules_list);
@@ -66,13 +69,52 @@ public class MainActivity extends AppCompatActivity {
 
         // Load current settings
         loadSettings();
+        
+        // Setup footer with clickable link
+        setupFooter();
+        
+        // Setup navigation bar padding - reduces available height to push content above nav bar
+        setupNavigationBarPadding();
+    }
+
+    private void setupFooter() {
+        TextView footerText = findViewById(R.id.footer_text);
+        
+        String fullText = "Made with ❤️ by reddfocus.org";
+        SpannableString spannableString = new SpannableString(fullText);
+        
+        int start = fullText.indexOf("reddfocus.org");
+        int end = start + "reddfocus.org".length();
+        
+        // Make "reddfocus.org" clickable (no special styling)
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://reddfocus.org"));
+                startActivity(browserIntent);
+            }
+            
+            @Override
+            public void updateDrawState(android.text.TextPaint ds) {
+                // Keep default text color, no underline
+                ds.setUnderlineText(false);
+                ds.setColor(footerText.getCurrentTextColor());
+            }
+        };
+        spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        
+        footerText.setText(spannableString);
+        footerText.setMovementMethod(LinkMovementMethod.getInstance());
+        footerText.setHighlightColor(android.graphics.Color.TRANSPARENT);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Update feed warning banner visibility based on service status and dismissal
-        updateFeedWarningBanner();
+        // Reload settings to pick up any new custom rules
+        loadSettings();
+        // Update adapter to grey out items when service disabled
+        adapter.refreshServiceState();
         // Check if accessibility service is enabled
         String serviceName = getPackageName() + "/" + DistractionControlService.class.getCanonicalName();
         int accessibilityEnabled = 0;
@@ -88,10 +130,7 @@ public class MainActivity extends AppCompatActivity {
             String settingValue = Settings.Secure.getString(
                     getContentResolver(),
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            if (settingValue != null && settingValue.contains(serviceName)) {
-                // Reload rules to reflect any changes from CustomRulesActivity
-                loadSettings();
-            }
+            // Rules are already reloaded at the start of onResume()
         }
 
         // Notify the adapter to update the service header
@@ -105,6 +144,55 @@ public class MainActivity extends AppCompatActivity {
             Log.d("SettingsActivity", "Rule for " + rule.packageName + " with description: " + rule.description);
         }
         adapter.setRules(rules);
+    }
+
+    private void setupNavigationBarColor() {
+        // Get the background color from theme
+        int backgroundColor = getResources().getColor(R.color.background_main, getTheme());
+        // Set navigation bar color to match app background
+        getWindow().setNavigationBarColor(backgroundColor);
+        
+        // Set navigation bar icon color: grey in light mode, white in dark mode
+        boolean isLightMode = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) 
+                             != Configuration.UI_MODE_NIGHT_YES;
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                int appearance = isLightMode ? WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS : 0;
+                controller.setSystemBarsAppearance(appearance, WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+            }
+        } else {
+            View decorView = getWindow().getDecorView();
+            int flags = decorView.getSystemUiVisibility();
+            if (isLightMode) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            } else {
+                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
+            decorView.setSystemUiVisibility(flags);
+        }
+    }
+
+    private void setupNavigationBarPadding() {
+        // Apply window insets to root CoordinatorLayout to reduce available height
+        // This pushes all content (footer, FAB, RecyclerView) up by nav bar height
+        View rootLayout = findViewById(R.id.main);
+        ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (v, insets) -> {
+            Insets navBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            Insets statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            
+            // Set padding on root layout: top = status bar, bottom = nav bar
+            // This reduces available height, pushing all content up uniformly
+            v.setPadding(
+                v.getPaddingLeft(),
+                statusBarInsets.top,
+                v.getPaddingRight(),
+                navBarInsets.bottom
+            );
+            
+            return insets;
+        });
     }
 
     private boolean isAccessibilityServiceEnabled() {
@@ -129,15 +217,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void updateFeedWarningBanner() {
-        boolean dismissed = prefs.getBoolean(FEED_WARNING_DISMISSED_KEY, false);
-        boolean serviceEnabled = isAccessibilityServiceEnabled();
-        if (!dismissed && serviceEnabled) {
-            feedWarningBanner.setVisibility(View.VISIBLE);
-        } else {
-            feedWarningBanner.setVisibility(View.GONE);
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
